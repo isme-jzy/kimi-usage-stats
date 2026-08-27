@@ -1,0 +1,118 @@
+/* ── 三态主题 token（月之亮面 / 月之暗面 / 跟随系统）──────────
+   <html data-theme> 由 panel.js 写入。:root = 亮（缺省），
+   [data-theme=dark] = 暗，无属性/system = 跟随系统（media 查询实时切换）。
+   与 dashboard.css / popup 同套 token 命名，三端共享 kus-theme 状态。 */
+:root {
+  /* 月之亮面 */
+  --bg: #F6F8FB;
+  --card: #FFFFFF;
+  --card-raise: #F3F4F6;
+  --text: #1F2937;
+  --sub: #6B7280;
+  --border: #E5E7EB;
+  --accent: #3B82F6;
+  --accent-strong: #1D4ED8;
+  --accent-hover: #2563EB;
+  --accent-soft: rgba(59, 130, 246, 0.10);
+  --accent-text: #2563EB;
+  --warn: #B45309;
+  --hover-bg: rgba(59, 130, 246, 0.06);
+  --btn-1: #2563EB;
+  --btn-2: #1D4ED8;
+  --btn-glow: rgba(29, 78, 216, 0.35);
+  --scheme: light;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+}
+/* 月之暗面（Kimi Code 暗色）：平实、无玻璃/光斑/紫调 */
+:root[data-theme="dark"] {
+  --bg: #0F1119;
+  --card: #151821;
+  --card-raise: #21262D;
+  --text: #E6E8EC;
+  --sub: #9AA1AE;
+  --border: #262A38;
+  --accent: #3B82F6;
+  --accent-strong: #1D4ED8;
+  --accent-hover: #2F6FE0;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --accent-text: #7FB4FF;
+  --warn: #F59E0B;
+  --hover-bg: rgba(59, 130, 246, 0.12);
+  --btn-1: #2563EB;
+  --btn-2: #1D4ED8;
+  --btn-glow: rgba(29, 78, 216, 0.45);
+  --scheme: dark;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+}
+/* 跟随系统：无属性或 data-theme="system" → 由系统暗色切入 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]),
+  :root[data-theme="system"] {
+    --bg: #0F1119;
+    --card: #151821;
+    --card-raise: #21262D;
+    --text: #E6E8EC;
+    --sub: #9AA1AE;
+    --border: #262A38;
+    --accent: #3B82F6;
+    --accent-strong: #1D4ED8;
+    --accent-hover: #2F6FE0;
+    --accent-soft: rgba(59, 130, 246, 0.16);
+    --accent-text: #7FB4FF;
+    --warn: #F59E0B;
+    --hover-bg: rgba(59, 130, 246, 0.12);
+    --btn-1: #2563EB;
+    --btn-2: #1D4ED8;
+    --btn-glow: rgba(29, 78, 216, 0.45);
+    --scheme: dark;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+}
+* { box-sizing: border-box; }
+html { color-scheme: var(--scheme); }
+body {
+  margin: 0; height: 100vh; display: flex; flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.6 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+header {
+  display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+#logo svg { width: 24px; height: 24px; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4)); }
+h1 { font-size: 14px; margin: 0; flex: 1; }
+select {
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px;
+  font: inherit;
+}
+select:hover { border-color: var(--accent); }
+#btn-theme {
+  background: none; border: 1px solid var(--border); color: var(--text);
+  border-radius: 6px; padding: 2px 8px; font-size: 12px; cursor: pointer;
+  line-height: 1.5; transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+#btn-theme:hover { border-color: var(--accent); background: var(--accent-soft); }
+#btn-close { background: none; border: 0; color: var(--sub); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 6px; cursor: pointer; }
+#btn-close:hover { background: var(--card); color: var(--text); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: right; padding: 7px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--sub); font-weight: 500; font-size: 11px; }
+tbody tr:hover td { background: var(--hover-bg); }
+#table { flex: 1; overflow-y: auto; display: block; }
+#table thead, #table tbody { display: table; width: 100%; table-layout: fixed; }
+.hint { padding: 24px 14px; text-align: center; color: var(--sub); }
+.badge { font-size: 10px; color: var(--accent-text); background: var(--accent-soft); border-radius: 4px; padding: 0 3px; margin-left: 4px; }
+footer { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--card); }
+button.primary { flex: 1; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; border: 0; border-radius: 8px; padding: 7px 0; cursor: pointer; box-shadow: 0 2px 8px var(--btn-glow); transition: filter 0.12s, box-shadow 0.15s; }
+button.primary:hover { filter: brightness(1.08); box-shadow: 0 4px 12px var(--btn-glow); }
+button.primary:active { filter: brightness(0.9); }
+button.ghost { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 12px; cursor: pointer; transition: background 0.12s, border-color 0.12s, color 0.12s; }
+button.ghost:hover { background: var(--card-raise); border-color: var(--accent); color: var(--accent); }
+button.ghost:active { background: color-mix(in srgb, var(--border) 60%, transparent); }
+.empty { text-align: center; color: var(--sub); padding: 24px 0; }

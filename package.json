@@ -1,0 +1,16 @@
+{
+  "name": "kimi-usage-stats",
+  "version": "1.0.0",
+  "description": "Kimi 模型用量统计（MV3 扩展）：解析 wire.jsonl 与 config.toml，本地展示用量。",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/isme_jzy/kimi-usage-stats"
+  },
+  "author": {
+    "name": "isme_jzy",
+    "email": "3058099144@qq.com"
+  }
+}

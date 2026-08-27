@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>模型用量统计 · Kimi</title>
+  <link rel="stylesheet" href="./dashboard.css" />
+  <style>
+    /* 价目表弹层（最小样式；主布局样式由 dashboard.css 持有） */
+    .price-overlay { position: fixed; inset: 0; background: rgba(1, 4, 9, 0.6); display: flex; align-items: center; justify-content: center; z-index: 20; padding: 20px; }
+    .price-overlay[hidden] { display: none; }
+    .price-card { width: min(680px, 100%); max-height: 82vh; display: flex; flex-direction: column; overflow: hidden; }
+    .price-head { padding: 16px 20px 6px; }
+    .price-head h2 { margin: 0 0 2px; font-size: 17px; }
+    .price-sub { font-size: 12px; color: var(--sub); }
+    .price-body { padding: 8px 20px; overflow-y: auto; }
+    .price-row { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .price-key { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .price-row input { width: 100%; box-sizing: border-box; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 7px; padding: 5px 8px; font: 12.5px var(--mono); font-variant-numeric: tabular-nums; }
+    .price-row input:focus { outline: none; border-color: var(--accent); }
+    .price-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px 16px; }
+    /* 显示全部开关（最小样式，复用现有 CSS 变量） */
+    .zero-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--sub); cursor: pointer; user-select: none; white-space: nowrap; }
+    .zero-toggle input { accent-color: var(--accent); cursor: pointer; margin: 0; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <span id="logo" class="logo"></span>
+      <div class="hero-text">
+        <h1>模型用量统计</h1>
+        <p class="sub">每个模型的 token 消耗、缓存命中与生成速度 · 数据仅读取本地 ~/.kimi-code，不上传</p>
+      </div>
+      <span class="hero-moon" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <div class="container">
+    <section id="onboarding" class="card center" hidden>
+      <div class="big-logo" id="logo-big"></div>
+      <h2>开始使用</h2>
+      <p>首次使用需要授权读取 <code>~/.kimi-code</code> 目录（仅本地读取，不上传任何数据）。</p>
+      <button id="btn-pick" class="primary">选择 .kimi-code 目录</button>
+    </section>
+
+    <section id="reauth" class="card center" hidden>
+      <div class="big-logo" id="logo-big2"></div>
+      <p>浏览器重启后目录读取权限需要重新确认。</p>
+      <button id="btn-reauth" class="primary">重新授权</button>
+    </section>
+
+    <main id="main" hidden>
+      <section class="cards">
+        <div class="stat">
+          <span class="stat-label">总消耗</span>
+          <span class="stat-value" id="c-total">—</span>
+          <span class="stat-note">tokens · <span id="c-requests">0</span> 次请求</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">输出</span>
+          <span class="stat-value" id="c-output">—</span>
+          <span class="stat-note">tokens</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">平均生成速度</span>
+          <span class="stat-value" id="c-tps">—</span>
+          <span class="stat-note">tokens/s · 按流式时长加权</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">缓存命中率</span>
+          <span class="stat-value" id="c-hit">—</span>
+          <span class="stat-note">缓存读 ÷（缓存读 + 普通输入）</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">估算花费</span>
+          <span class="stat-value" id="c-cost">—</span>
+          <span class="stat-note">按价目表估算 · 未定价不计</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">中断轮次消耗</span>
+          <span class="stat-value" id="c-interrupt">—</span>
+          <span class="stat-note" id="c-interrupt-note">被打断轮次 token 估算</span>
+        </div>
+      </section>
+
+      <div class="card heatmap-card">
+        <div class="heatmap-head">
+          <div style="min-width:0;">
+            <div class="heatmap-title" id="heatmap-title">每日消耗热力图</div>
+            <div class="heatmap-sub" id="heatmap-sub">按本地日聚合</div>
+          </div>
+        </div>
+        <div id="heatmap" class="heatmap-body"></div>
+        <div id="heatmap-day-detail" class="heatmap-day-detail"></div>
+      </div>
+
+      <div class="toolbar">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <nav id="filters" class="filters">
+            <button data-range="today" class="pill">今日</button>
+            <button data-range="yesterday" class="pill">昨天</button>
+            <button data-range="7d" class="pill">近 7 天</button>
+            <button data-range="all" class="pill">全部</button>
+          </nav>
+          <span id="date-chip" class="date-chip" hidden></span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <nav id="views" class="filters">
+            <button data-view="model" class="pill active">模型</button>
+            <button data-view="session" class="pill">会话</button>
+          </nav>
+          <label class="zero-toggle" title="显示配置过但本时段零用量的模型">
+            <input type="checkbox" id="show-zero" />
+            <span>显示全部</span>
+          </label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <nav id="theme" class="filters" title="主题：月之亮面 / 月之暗面 / 跟随系统">
+              <button data-theme-opt="light" class="pill" title="月之亮面">亮</button>
+              <button data-theme-opt="dark" class="pill" title="月之暗面">暗</button>
+              <button data-theme-opt="system" class="pill" title="跟随系统">跟随</button>
+            </nav>
+            <button id="btn-prices" class="ghost" title="设置各模型单价（元 / 百万 tokens）">价目表</button>
+            <button id="btn-rescan" class="ghost">↻ 重新扫描</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card table-wrap" id="model-table">
+        <table>
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th title="普通输入（未走缓存的部分）">未命中</th>
+              <th title="从缓存读取的输入 tokens">缓存命中</th>
+              <th title="缓存读 ÷（缓存读 + 普通输入）">命中率</th>
+              <th>输出</th>
+              <th>合计</th>
+              <th title="输入(普通+缓存写)×输入价 + 缓存读×缓存价 + 输出×输出价；未定价显示 —">估算花费</th>
+              <th>请求</th>
+              <th title="Σ输出 ÷ Σ流式时长">平均 t/s</th>
+              <th>最近 t/s</th>
+              <th>最近使用</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="card table-wrap" id="session-table" hidden>
+        <table>
+          <thead>
+            <tr>
+              <th>项目</th>
+              <th title="点击行可展开模型分布与中断消耗">会话</th>
+              <th title="工作表内首条记录时间">开始</th>
+              <th title="首条到末条记录的跨度">时长</th>
+              <th>模型</th>
+              <th>总 token</th>
+              <th title="按价目表估算 · 未定价不计">花费</th>
+              <th>请求</th>
+              <th title="被打断轮次数（点行展开模型分布与中断消耗）">中断</th>
+            </tr>
+          </thead>
+          <tbody id="session-tbody"></tbody>
+        </table>
+      </div>
+
+      <footer class="foot">
+        <span id="footer-info"></span>
+      </footer>
+    </main>
+  </div>
+
+  <div id="price-modal" class="price-overlay" hidden>
+    <div class="card price-card">
+      <div class="price-head">
+        <h2>价目表设置</h2>
+        <span class="price-sub">单价：元 / 百万 tokens · 留空表示未定价 · 保存后立即生效</span>
+      </div>
+      <div id="price-body" class="price-body"></div>
+      <div class="price-foot">
+        <button id="btn-price-cancel" class="ghost">关闭</button>
+        <button id="btn-price-save" class="primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    /* 三态主题 token（与 dashboard/panel 同套命名，共享 kus-theme 状态）：
+       :root = 亮（缺省），[data-theme=dark] = 暗，无属性/system = 跟随系统。 */
+    :root {
+      --bg:#F6F8FB; --card:#FFFFFF;
+      --text:#1F2937; --sub:#6B7280; --accent:#3B82F6;
+      --accent-strong:#1D4ED8; --accent-soft:rgba(59,130,246,0.10);
+      --btn-1:#2563EB; --btn-2:#1D4ED8; --btn-glow:rgba(29,78,216,0.35);
+      --scheme: light;
+    }
+    :root[data-theme="dark"] {
+      --bg:#0F1119; --card:#151821;
+      --text:#E6E8EC; --sub:#9AA1AE; --accent:#3B82F6;
+      --accent-strong:#1D4ED8; --accent-soft:rgba(59,130,246,0.16);
+      --btn-1:#2563EB; --btn-2:#1D4ED8; --btn-glow:rgba(29,78,216,0.45);
+      --scheme: dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]),
+      :root[data-theme="system"] {
+        --bg:#0F1119; --card:#151821;
+        --text:#E6E8EC; --sub:#9AA1AE; --accent:#3B82F6;
+        --accent-strong:#1D4ED8; --accent-soft:rgba(59,130,246,0.16);
+        --btn-1:#2563EB; --btn-2:#1D4ED8; --btn-glow:rgba(29,78,216,0.45);
+        --scheme: dark;
+      }
+    }
+    html { color-scheme: var(--scheme); }
+    body { width: 250px; margin: 0; padding: 14px; background: var(--bg); color: var(--text); font: 13px/1.6 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; -webkit-font-smoothing: antialiased; }
+    header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    #logo svg { width: 22px; height: 22px; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4)); }
+    h1 { font-size: 13px; margin: 0; flex: 1; }
+    #btn-theme { border: 1px solid var(--accent-soft); background: var(--accent-soft); color: var(--text); border-radius: 6px; padding: 2px 8px; font-size: 11px; cursor: pointer; transition: border-color 0.12s, filter 0.12s; }
+    #btn-theme:hover { border-color: var(--accent); }
+    p { color: var(--sub); margin: 4px 0 10px; font-size: 12px; }
+    button { width: 100%; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; border: 0; border-radius: 8px; padding: 7px 0; cursor: pointer; box-shadow: 0 2px 8px var(--btn-glow); transition: filter 0.12s, box-shadow 0.15s; }
+    button:hover { filter: brightness(1.1); box-shadow: 0 4px 12px var(--btn-glow); }
+    button:active { filter: brightness(0.9); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <header><span id="logo"></span><h1>模型用量统计</h1><button id="btn-theme" title="主题：跟随系统（点击切换）">跟随</button></header>
+  <p id="status">读取状态中…</p>
+  <button id="btn-open">打开模型用量统计</button>
+  <script type="module" src="./popup.js"></script>
+</body>
+</html>
