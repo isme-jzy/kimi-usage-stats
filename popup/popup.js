@@ -4,8 +4,8 @@ import * as store from '../lib/store.js';
 // ── 三态主题（与 dashboard/panel 共享 kus-theme；deferred 模块运行时 DOM 已就绪） ──
 const THEME_KEY = 'kus-theme';
 const THEME_MODES = ['light', 'dark', 'system'];
-const THEME_LABEL = { light: '亮', dark: '暗', system: '跟随' };
-const THEME_NAME = { light: '月之亮面', dark: '月之暗面', system: '跟随系统' };
+const THEME_LABEL = { light: '亮', dark: 'HUD', system: '跟随' };
+const THEME_NAME = { light: '月之亮面', dark: '霓虹 HUD', system: '跟随系统' };
 
 function readThemePref() {
   let v = null;

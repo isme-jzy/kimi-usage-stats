@@ -1,5 +1,6 @@
 import { LOGO_SVG } from '../lib/brand.js';
 import { rangeBounds, aggregateByModel, summarize, fmtNum, fmtPct, fmtCost } from '../lib/aggregate.js';
+import { ringDash, sparkHeights } from '../lib/charts.js';
 import * as store from '../lib/store.js';
 import { ensureReadPermission, scanKimiHome } from '../lib/scanner.js';
 
@@ -13,8 +14,8 @@ let priceOverrides = null;
 // ── 三态主题（与 dashboard/popup 共享 kus-theme；deferred 模块运行时 DOM 已就绪） ──
 const THEME_KEY = 'kus-theme';
 const THEME_MODES = ['light', 'dark', 'system'];
-const THEME_LABEL = { light: '亮', dark: '暗', system: '跟随' };
-const THEME_NAME = { light: '月之亮面', dark: '月之暗面', system: '跟随系统' };
+const THEME_LABEL = { light: '亮', dark: 'HUD', system: '跟随' };
+const THEME_NAME = { light: '月之亮面', dark: '霓虹 HUD', system: '跟随系统' };
 
 function readThemePref() {
   let v = null;
@@ -49,20 +50,21 @@ function render() {
   // 概览如何折零用量：默认只显示有数据的模型（与 dashboard 默认口径一致）
   const rows = aggregateByModel(records, models, rangeBounds($('range').value), priceOverrides)
     .filter((r) => r.requests > 0);
-  // 霓虹 HUD 图形化：token 条按最大值归一；命中率画 SVG 圆环（r=7.5，周长≈47.12）
+  // 霓虹 HUD 图形化：token 条按最大值归一；命中率圆环经 ringDash；tps 迷你柱按表内最大值归一
   const maxTotal = Math.max(...rows.map((r) => r.total), 1);
-  const RING_C = 47.12;
+  const maxTps = Math.max(...rows.map((r) => r.tokensPerSec || 0), 0);
   $('tbody').innerHTML = rows.length
     ? rows.map((r) => {
         const rate = r.cacheHitRate;
         const lv = rate == null ? 'mid' : rate >= 0.9 ? 'hi' : rate >= 0.7 ? 'mid' : rate >= 0.5 ? 'low' : 'crit';
-        const off = rate == null ? RING_C : (RING_C * (1 - rate)).toFixed(2);
+        const rd = ringDash(rate);
         const barW = ((r.total / maxTotal) * 100).toFixed(1);
+        const tpsH = sparkHeights([r.tokensPerSec || 0], 12, maxTps)[0];
         return `<tr>
         <td title="${esc(r.key)}">${esc(r.displayName)}${r.configured ? '' : '<span class="badge">未配置</span>'}</td>
         <td><div class="tok"><span class="tok-num">${fmtNum(r.total)}</span><span class="tok-bar"><i style="width:${barW}%"></i></span></div></td>
-        <td><span class="hit ${lv}"><b>${fmtPct(rate)}</b><svg class="ring" viewBox="0 0 20 20" aria-hidden="true"><circle class="rb" cx="10" cy="10" r="7.5"/><circle class="rf" cx="10" cy="10" r="7.5" style="stroke-dasharray:${RING_C};stroke-dashoffset:${off}"/></svg></span></td>
-        <td class="ts">${r.tokensPerSec == null ? '—' : r.tokensPerSec.toFixed(1)}</td>
+        <td><span class="hit ${lv}"><b>${fmtPct(rate)}</b><svg class="ring" viewBox="0 0 20 20" aria-hidden="true"><circle class="rb" cx="10" cy="10" r="7.5"/><circle class="rf" cx="10" cy="10" r="7.5" style="stroke-dasharray:${rd.c};stroke-dashoffset:${rd.off}"/></svg></span></td>
+        <td class="ts"><span class="ts-num">${r.tokensPerSec == null ? '—' : r.tokensPerSec.toFixed(1)}</span><span class="spark">${tpsH ? `<i style="height:${tpsH}px"></i>` : ''}</span></td>
       </tr>`;
       }).join('')
     : '<tr><td colspan="4" class="empty">暂无用量记录</td></tr>';

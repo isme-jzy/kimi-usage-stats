@@ -56,7 +56,7 @@ function show(section) {
   for (const id of ['onboarding', 'reauth', 'main']) $(id).hidden = id !== section;
 }
 
-// ── 三态主题（月之亮面 / 月之暗面 / 跟随系统） ──────────────
+// ── 三态主题（月之亮面 / 霓虹 HUD / 跟随系统） ──────────────
 // 共享状态键 kus-theme，三端（dashboard/panel/popup）同源共享。
 // 值写入 <html data-theme>；'light'/'dark' 走 CSS 显式 token，
 // 'system' 由 CSS media query 实时跟随系统，无需额外重算。

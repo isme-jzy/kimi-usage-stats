@@ -203,8 +203,16 @@ tbody tr:hover td { background: var(--row-glass); box-shadow: 0 0 0 1px var(--ac
 .hit.low b, .hit.low .ring { color: var(--low); }
 .hit.crit b, .hit.crit .ring { color: var(--crit); }
 
-/* 平均 t/s：数码字 */
-td.ts { font-family: var(--mono); text-shadow: 0 0 8px var(--glow); }
+/* 平均 t/s：数码字 + 迷你柱状图 */
+td.ts .ts-num { font-family: var(--mono); text-shadow: 0 0 8px var(--glow); }
+td.ts { white-space: nowrap; }
+.ts-num { margin-right: 6px; }
+.spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: -1px; }
+.spark i {
+  display: block; width: 4px; border-radius: 1px;
+  background: linear-gradient(180deg, var(--accent), var(--mid));
+  box-shadow: 0 0 6px var(--glow);
+}
 
 .hint { padding: 24px 14px; text-align: center; color: var(--sub); }
 .badge {
