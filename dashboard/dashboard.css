@@ -258,6 +258,25 @@ body::after {
   font-variant-numeric: tabular-nums;
 }
 .stat-note { font-size: 11px; color: var(--sub); }
+/* HUD 统计卡：数值行（圆环/柱状图与数字同行） */
+.stat-line { display: inline-flex; align-items: center; gap: 10px; min-height: 30px; }
+.stat-ring { width: 26px; height: 26px; transform: rotate(-90deg); flex: none; }
+.stat-ring .rb { fill: none; stroke: var(--bar-track); stroke-width: 4; }
+.stat-ring .rf {
+  fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round;
+  filter: drop-shadow(0 0 4px var(--glow));
+}
+/* 主数字发光（HUD 数码感） */
+.stat-value { text-shadow: 0 0 12px var(--glow); }
+/* 平均 t/s 迷你柱状图 */
+.spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; }
+.spark i {
+  width: 4px; border-radius: 1px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 0 6px var(--glow);
+}
+/* 估算花费：琥珀金高亮 */
+.stat-cost { color: var(--amber); text-shadow: 0 0 12px var(--amber-glow); }
 
 /* ── 每日消耗热力图卡（365 天日历） ────────────── */
 .heatmap-card { padding: 16px 18px 14px; margin-top: 16px; }

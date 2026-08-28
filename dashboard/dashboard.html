@@ -64,17 +64,26 @@
         </div>
         <div class="stat">
           <span class="stat-label">平均生成速度</span>
-          <span class="stat-value" id="c-tps">—</span>
+          <span class="stat-line">
+            <span class="stat-value" id="c-tps">—</span>
+            <span class="spark" id="c-tps-spark" aria-hidden="true"></span>
+          </span>
           <span class="stat-note">tokens/s · 按流式时长加权</span>
         </div>
         <div class="stat">
           <span class="stat-label">缓存命中率</span>
-          <span class="stat-value" id="c-hit">—</span>
+          <span class="stat-line">
+            <span class="stat-value" id="c-hit">—</span>
+            <svg class="stat-ring" viewBox="0 0 24 24" aria-hidden="true">
+              <circle class="rb" cx="12" cy="12" r="9"/>
+              <circle class="rf" id="c-hit-arc" cx="12" cy="12" r="9"/>
+            </svg>
+          </span>
           <span class="stat-note">缓存读 ÷（缓存读 + 普通输入）</span>
         </div>
         <div class="stat">
           <span class="stat-label">估算花费</span>
-          <span class="stat-value" id="c-cost">—</span>
+          <span class="stat-value stat-cost" id="c-cost">—</span>
           <span class="stat-note">按价目表估算 · 未定价不计</span>
         </div>
         <div class="stat">

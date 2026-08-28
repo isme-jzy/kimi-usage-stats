@@ -1,5 +1,6 @@
 import { LOGO_SVG } from '../lib/brand.js';
 import { rangeBounds, aggregateByModel, aggregateBySession, interruptStats, summarize, fmtNum, fmtPct, fmtCost } from '../lib/aggregate.js';
+import { ringDash, sparkHeights, dailyBuckets } from '../lib/charts.js';
 import { DEFAULT_PRICE_TABLE, priceKey, getPrice, calcCost } from '../lib/pricing.js';
 import * as store from '../lib/store.js';
 import { ensureReadPermission, scanKimiHome } from '../lib/scanner.js';
@@ -171,8 +172,17 @@ function renderModelView(range) {
   $('c-output').textContent = fmtNum(s.output);
   $('c-tps').textContent = fmtTps(s.tokensPerSec);
   $('c-hit').textContent = fmtPct(s.cacheHitRate);
+  // 命中率发光圆环（r=9，周长≈56.55）；无数据 → 空态仅轨道
+  const rd = ringDash(s.cacheHitRate, 9);
+  const arc = $('c-hit-arc');
+  arc.style.strokeDasharray = String(rd.c);
+  arc.style.strokeDashoffset = String(rd.off);
   // 没有任何模型被定价时显示 —（与表格/panel 口径一致），而非 ¥0.00
   $('c-cost').textContent = rows.some((r) => r.cost != null) ? fmtCost(s.cost) : '—';
+  // 平均 t/s 迷你柱状图：近 14 天每日加权 tps（与范围联动，无数据不渲染）
+  const buckets = dailyBuckets(records, range, Date.now(), 14);
+  const tpsVals = buckets.map((b) => (b.streamMs > 0 ? (b.output / b.streamMs) * 1000 : 0));
+  $('c-tps-spark').innerHTML = sparkHeights(tpsVals, 18).map((h) => `<i style="height:${h}px"></i>`).join('');
 
   const tbody = $('tbody');
   if (!rows.length) {
