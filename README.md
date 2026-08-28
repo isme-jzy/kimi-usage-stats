@@ -1,6 +1,6 @@
 <div align="center">
 
-#Kimi代码模型用量统计（社区版）
+# Kimi代码模型用量统计（社区版）
 
 **Kimi Code 每个模型的 token 消耗、缓存命中率、生成速度与花费估算 —— 100% 本地统计**
 
@@ -31,18 +31,49 @@
 
 ## 截图
 
-| 🌑 月之暗面 | 🌕 月之亮面 |
+| 🌌 霓虹 HUD（暗色） | 🌕 月之亮面 |
 | --- | --- |
 | ![dashboard-dark](screenshots/dashboard-dark.png) | ![dashboard-light](screenshots/dashboard-light.png) |
 
+> 注：以上两张仪表盘截图摄于 HUD 改版前，暗色实际效果为深海军蓝玻璃 + 全息网格 + 青色光晕，待更新。
+
+### 上下文指示器（kimi web 输入框上方）
+
+![上下文指示器](screenshots/context-indicator.png)
+
+**上行 · 上下文占用**：实时显示当前会话上下文窗口的占用与组成——
+
+![上下文占用分解](screenshots/context-usage.png)
+
+| 字段 | 含义 |
+| --- | --- |
+| `上下文已用 62%` | 当前会话上下文 ÷ 模型上下文上限（悬停可见具体 token 数，如 `~160.2K / 256.0K`） |
+| `系统提示词 ~14.5K` | 系统提示词占用的 token |
+| `工具 ~26.1K` | 工具定义与工具结果占用的 token |
+| `对话消息 ~121.2K` | 对话消息（含历史）占用的 token |
+
+**下行 · 会话性能统计**——
+
+![会话性能统计](screenshots/context-stats.png)
+
+| 字段 | 含义 |
+| --- | --- |
+| `6 轮 · 91 步` | 会话轮数（turn.prompt 次数）· LLM 调用步数 |
+| `LLM 23m55s · 工具 45m50s` | LLM 累计耗时 · 工具执行累计耗时 |
+| `首 token 平均 11s · 38 tok/s` | 首 token 平均延迟（TTFT）· 平均生成速度（输出 ÷ LLM 时长） |
+| `缓存命中 97%` | 缓存读 ÷（缓存读 + 普通输入），越高越省 |
+| `输入 10.1M tok · 输出 54.9K tok` | 会话累计输入（含缓存读）/ 输出 token |
+
+指示器每 3 秒自动刷新，数据来自本地 `~/.kimi-code` 会话记录；未授权目录时显示「上下文：未授权」。
+
 ## 功能特性
 
-- **按模型汇总**：未命中输入 / 缓存命中 / 缓存写、命中率（迷你条形）、输出、合计 tokens、请求数、平均与最近 tokens/s、最近使用时间
+- **按模型汇总**：未命中输入 / 缓存命中 / 缓存写、命中率（**发光圆环**）、输出、合计 tokens（**霓虹渐变条**）、请求数、平均与最近 tokens/s（**迷你柱状图**）、最近使用时间
 - **按会话下钻**：项目（工作区）、会话、起止时间、时长、模型分布、估算花费、**中断轮次消耗**（被打断轮次浪费的 token 与金额）
 - **365 天消耗热力图**：GitHub 风格日历，点击日期 → 当日详情面板 + 表格与汇总卡切换为该天数据
 - **上下文指示器（kimi web 输入框上方）**：实时显示上下文占用百分比与组成分解（系统提示词 / 工具 / 对话消息的 token 数）；下方统计条展示 轮数·步数、LLM 与工具耗时、首 token 平均延迟、生成速度（tok/s）、缓存命中率、输入/输出 token —— 一眼看清当前会话的上下文压力和性能
 - **时间筛选**：今日 / 昨天 / 近 7 天 / 全部（按本地 0 点切日）
-- **三态主题**：🌕 月之亮面 / 🌑 月之暗面 / 🖥 跟随系统（实时切换，三端共享）
+- **三态主题**：🌕 月之亮面 / 🌌 霓虹 HUD（深海军蓝玻璃 + 全息网格 + 青色光晕，琥珀金高亮花费）/ 🖥 跟随系统（实时切换，三端共享）
 - **增量扫描**：文件未变化（mtime + size）即跳过，只解析新增内容；IndexedDB 缓存，重复扫描只追加
 - **价目表**：内置 Kimi / DeepSeek 官方参考价，可逐模型修改单价（输入 / 缓存命中 / 输出三档），保存后立即生效
 
@@ -88,7 +119,7 @@
 零 npm 依赖，Node 18+ 即可：
 
 ```bash
-node --test                # 运行全部单元测试（aggregate / parser / icons / pricing / scanner-offset）
+node --test                # 运行全部单元测试（aggregate / charts / parser / icons / pricing / scanlock / scanner-offset）
 node --check <file>        # 语法检查
 node tools/gen-icons.mjs   # 重新生成 icons（SSAA 抗锯齿 PNG）
 node tools/smoke-parse.mjs # 用真实 wire.jsonl + config.toml 冒烟解析
