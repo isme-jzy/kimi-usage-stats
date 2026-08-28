@@ -87,7 +87,10 @@ function setTheme(pref) {
 // 仅 system 模式下需要监听系统切换（直接重写为 'system'，由 CSS 实时驱动视觉）
 const themeMq = window.matchMedia('(prefers-color-scheme: dark)');
 function onSystemThemeChange() {
-  if (themePref === 'system') document.documentElement.dataset.theme = 'system';
+  if (themePref === 'system') {
+    delete document.documentElement.dataset.theme;
+    requestAnimationFrame(() => { document.documentElement.dataset.theme = 'system'; });
+  }
 }
 
 function initTheme() {

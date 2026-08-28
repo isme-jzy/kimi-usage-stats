@@ -1,69 +1,89 @@
-/* ── 三态主题 token（月之亮面 / 月之暗面 / 跟随系统）──────────
-   <html data-theme> 由 panel.js 写入。:root = 亮（缺省），
-   [data-theme=dark] = 暗，无属性/system = 跟随系统（media 查询实时切换）。
-   与 dashboard.css / popup 同套 token 命名，三端共享 kus-theme 状态。 */
+/* ── 霓虹 HUD 主题（方案 A：深海军蓝玻璃 + 全息网格 + 青色描边光晕）──────
+   三态主题保留：dark / system-dark = 完整霓虹 HUD；
+   light = 同构浅色玻璃（图形语言不变：渐变条 / 圆环 / 辉光保留）。 */
 :root {
-  /* 月之亮面 */
-  --bg: #F6F8FB;
-  --card: #FFFFFF;
-  --card-raise: #F3F4F6;
-  --text: #1F2937;
-  --sub: #6B7280;
-  --border: #E5E7EB;
-  --accent: #3B82F6;
-  --accent-strong: #1D4ED8;
-  --accent-hover: #2563EB;
-  --accent-soft: rgba(59, 130, 246, 0.10);
-  --accent-text: #2563EB;
-  --warn: #B45309;
-  --hover-bg: rgba(59, 130, 246, 0.06);
+  /* 亮面：浅色玻璃 HUD */
+  --bg: #EAF1FC;
+  --panel-glass: rgba(255, 255, 255, 0.72);
+  --row-glass: rgba(255, 255, 255, 0.82);
+  --row-border: rgba(37, 99, 235, 0.20);
+  --text: #16233F;
+  --sub: #5B6B8C;
+  --border: rgba(37, 99, 235, 0.18);
+  --accent: #2563EB;
+  --accent-text: #1D4ED8;
+  --glow: rgba(37, 99, 235, 0.20);
+  --edge-glow: rgba(37, 99, 235, 0.40);
+  --grid-line: rgba(37, 99, 235, 0.06);
+  --bar-track: rgba(37, 99, 235, 0.12);
+  --tok-grad: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+  --hi: #0891B2;
+  --mid: #2563EB;
+  --low: #B45309;
+  --crit: #DC2626;
+  --amber: #B45309;
+  --amber-glow: rgba(180, 83, 9, 0.25);
   --btn-1: #2563EB;
-  --btn-2: #1D4ED8;
-  --btn-glow: rgba(29, 78, 216, 0.35);
+  --btn-2: #06B6D4;
+  --btn-glow: rgba(14, 165, 233, 0.35);
   --scheme: light;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
 }
-/* 月之暗面（Kimi Code 暗色）：平实、无玻璃/光斑/紫调 */
+/* 月之暗面 = 完整霓虹 HUD（深海军蓝玻璃） */
 :root[data-theme="dark"] {
-  --bg: #0F1119;
-  --card: #151821;
-  --card-raise: #21262D;
-  --text: #E6E8EC;
-  --sub: #9AA1AE;
-  --border: #262A38;
-  --accent: #3B82F6;
-  --accent-strong: #1D4ED8;
-  --accent-hover: #2F6FE0;
-  --accent-soft: rgba(59, 130, 246, 0.16);
-  --accent-text: #7FB4FF;
-  --warn: #F59E0B;
-  --hover-bg: rgba(59, 130, 246, 0.12);
+  --bg: #060B1C;
+  --panel-glass: rgba(10, 20, 46, 0.78);
+  --row-glass: rgba(16, 30, 62, 0.72);
+  --row-border: rgba(56, 189, 248, 0.22);
+  --text: #E6F1FF;
+  --sub: #7C93BE;
+  --border: rgba(56, 189, 248, 0.20);
+  --accent: #22D3EE;
+  --accent-text: #67E8F9;
+  --glow: rgba(34, 211, 238, 0.30);
+  --edge-glow: rgba(34, 211, 238, 0.45);
+  --grid-line: rgba(56, 189, 248, 0.07);
+  --bar-track: rgba(56, 189, 248, 0.14);
+  --tok-grad: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+  --hi: #22D3EE;
+  --mid: #60A5FA;
+  --low: #FBBF24;
+  --crit: #F87171;
+  --amber: #FFC24B;
+  --amber-glow: rgba(255, 194, 75, 0.30);
   --btn-1: #2563EB;
-  --btn-2: #1D4ED8;
-  --btn-glow: rgba(29, 78, 216, 0.45);
+  --btn-2: #06B6D4;
+  --btn-glow: rgba(34, 211, 238, 0.35);
   --scheme: dark;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
 }
-/* 跟随系统：无属性或 data-theme="system" → 由系统暗色切入 */
+/* 跟随系统：无属性或 data-theme="system" → 系统暗色切入 HUD */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]),
   :root[data-theme="system"] {
-    --bg: #0F1119;
-    --card: #151821;
-    --card-raise: #21262D;
-    --text: #E6E8EC;
-    --sub: #9AA1AE;
-    --border: #262A38;
-    --accent: #3B82F6;
-    --accent-strong: #1D4ED8;
-    --accent-hover: #2F6FE0;
-    --accent-soft: rgba(59, 130, 246, 0.16);
-    --accent-text: #7FB4FF;
-    --warn: #F59E0B;
-    --hover-bg: rgba(59, 130, 246, 0.12);
+    --bg: #060B1C;
+    --panel-glass: rgba(10, 20, 46, 0.78);
+    --row-glass: rgba(16, 30, 62, 0.72);
+    --row-border: rgba(56, 189, 248, 0.22);
+    --text: #E6F1FF;
+    --sub: #7C93BE;
+    --border: rgba(56, 189, 248, 0.20);
+    --accent: #22D3EE;
+    --accent-text: #67E8F9;
+    --glow: rgba(34, 211, 238, 0.30);
+    --edge-glow: rgba(34, 211, 238, 0.45);
+    --grid-line: rgba(56, 189, 248, 0.07);
+    --bar-track: rgba(56, 189, 248, 0.14);
+    --tok-grad: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+    --hi: #22D3EE;
+    --mid: #60A5FA;
+    --low: #FBBF24;
+    --crit: #F87171;
+    --amber: #FFC24B;
+    --amber-glow: rgba(255, 194, 75, 0.30);
     --btn-1: #2563EB;
-    --btn-2: #1D4ED8;
-    --btn-glow: rgba(29, 78, 216, 0.45);
+    --btn-2: #06B6D4;
+    --btn-glow: rgba(34, 211, 238, 0.35);
     --scheme: dark;
     --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
   }
@@ -74,45 +94,157 @@ body {
   margin: 0; height: 100vh; display: flex; flex-direction: column;
   background: var(--bg);
   color: var(--text);
-  font: 13px/1.6 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font: 12.5px/1.6 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+/* 全息网格：青色细网格，顶部向远处淡出 */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 100%);
+}
+/* 面板内侧青色氛围光（顶部 + 底部角） */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 30% at 85% -5%, var(--glow), transparent 70%),
+    radial-gradient(50% 25% at 10% 105%, var(--glow), transparent 70%);
+}
+header, #hint, #table, #foot-cost, footer { position: relative; z-index: 1; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── 头部：玻璃 + 标题辉光 ─────────────────────── */
 header {
   display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+  background: var(--panel-glass);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
-  background: var(--card);
 }
-#logo svg { width: 24px; height: 24px; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4)); }
-h1 { font-size: 14px; margin: 0; flex: 1; }
+#logo svg { width: 24px; height: 24px; filter: drop-shadow(0 0 8px var(--glow)); }
+h1 {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin: 0; flex: 1;
+  text-shadow: 0 0 12px var(--glow);
+}
 select {
-  background: var(--card); color: var(--text);
-  border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px;
-  font: inherit;
+  background: var(--panel-glass); color: var(--accent-text);
+  border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px;
+  font: inherit; font-size: 12px; cursor: pointer;
 }
-select:hover { border-color: var(--accent); }
+select:hover { border-color: var(--accent); box-shadow: 0 0 8px var(--glow); }
 #btn-theme {
-  background: none; border: 1px solid var(--border); color: var(--text);
-  border-radius: 6px; padding: 2px 8px; font-size: 12px; cursor: pointer;
-  line-height: 1.5; transition: border-color 0.12s, background 0.12s, color 0.12s;
+  background: var(--panel-glass); border: 1px solid var(--border); color: var(--sub);
+  border-radius: 999px; padding: 2px 8px; font-size: 12px; cursor: pointer;
+  line-height: 1.5; transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
 }
-#btn-theme:hover { border-color: var(--accent); background: var(--accent-soft); }
-#btn-close { background: none; border: 0; color: var(--sub); font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 6px; cursor: pointer; }
-#btn-close:hover { background: var(--card); color: var(--text); }
-table { width: 100%; border-collapse: collapse; }
-th, td { text-align: right; padding: 7px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; font-variant-numeric: tabular-nums; }
-th:first-child, td:first-child { text-align: left; }
-th { color: var(--sub); font-weight: 500; font-size: 11px; }
-tbody tr:hover td { background: var(--hover-bg); }
-#table { flex: 1; overflow-y: auto; display: block; }
-#table thead, #table tbody { display: table; width: 100%; table-layout: fixed; }
+#btn-theme:hover { border-color: var(--accent); color: var(--accent-text); box-shadow: 0 0 8px var(--glow); }
+#btn-close {
+  background: none; border: 0; color: var(--sub); font-size: 18px; line-height: 1;
+  padding: 2px 6px; border-radius: 6px; cursor: pointer;
+}
+#btn-close:hover { background: var(--row-glass); color: var(--text); }
+
+/* ── 表格 → 玻璃卡片行 ─────────────────────────── */
+#table { flex: 1; overflow-y: auto; display: block; padding: 6px 10px 8px; }
+#table::-webkit-scrollbar { width: 8px; }
+#table::-webkit-scrollbar-track { background: transparent; }
+#table::-webkit-scrollbar-thumb { background: var(--edge-glow); border-radius: 99px; }
+#table thead, #table tbody { display: table; width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0 6px; }
+th {
+  color: var(--sub); font-weight: 600; font-size: 11px; letter-spacing: 0.4px;
+  padding: 2px 10px 4px; text-align: right; white-space: nowrap;
+}
+th:first-child, td:first-child { text-align: left; width: 30%; }
+td {
+  text-align: right; padding: 8px 10px;
+  background: var(--row-glass);
+  border-top: 1px solid var(--row-border); border-bottom: 1px solid var(--row-border);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+td:first-child {
+  border-left: 1px solid var(--row-border); border-radius: 10px 0 0 10px;
+  font-weight: 600; overflow: hidden; text-overflow: ellipsis;
+}
+td:last-child { border-right: 1px solid var(--row-border); border-radius: 0 10px 10px 0; }
+tbody tr:hover td { background: var(--row-glass); box-shadow: 0 0 0 1px var(--accent) inset, 0 0 14px var(--glow); }
+
+/* 合计 tokens：发光数码 + 霓虹渐变条 */
+.tok { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.tok-num {
+  font-family: var(--mono); font-weight: 700; font-size: 12.5px;
+  text-align: right; text-shadow: 0 0 10px var(--glow);
+}
+.tok-bar {
+  height: 4px; border-radius: 99px; background: var(--bar-track); overflow: hidden;
+}
+.tok-bar i {
+  display: block; height: 100%; border-radius: 99px;
+  background: var(--tok-grad);
+  box-shadow: 0 0 8px var(--glow);
+}
+
+/* 命中率：彩色数值 + 发光圆环进度 */
+.hit { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.hit b { font-family: var(--mono); font-weight: 700; font-size: 12.5px; }
+.hit .ring { width: 15px; height: 15px; transform: rotate(-90deg); flex: none; }
+.hit .rb { fill: none; stroke: var(--bar-track); stroke-width: 3.5; }
+.hit .rf {
+  fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+.hit.hi b, .hit.hi .ring { color: var(--hi); }
+.hit.mid b, .hit.mid .ring { color: var(--mid); }
+.hit.low b, .hit.low .ring { color: var(--low); }
+.hit.crit b, .hit.crit .ring { color: var(--crit); }
+
+/* 平均 t/s：数码字 */
+td.ts { font-family: var(--mono); text-shadow: 0 0 8px var(--glow); }
+
 .hint { padding: 24px 14px; text-align: center; color: var(--sub); }
-.badge { font-size: 10px; color: var(--accent-text); background: var(--accent-soft); border-radius: 4px; padding: 0 3px; margin-left: 4px; }
-footer { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--card); }
-button.primary { flex: 1; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; border: 0; border-radius: 8px; padding: 7px 0; cursor: pointer; box-shadow: 0 2px 8px var(--btn-glow); transition: filter 0.12s, box-shadow 0.15s; }
-button.primary:hover { filter: brightness(1.08); box-shadow: 0 4px 12px var(--btn-glow); }
-button.primary:active { filter: brightness(0.9); }
-button.ghost { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 12px; cursor: pointer; transition: background 0.12s, border-color 0.12s, color 0.12s; }
-button.ghost:hover { background: var(--card-raise); border-color: var(--accent); color: var(--accent); }
-button.ghost:active { background: color-mix(in srgb, var(--border) 60%, transparent); }
+.badge {
+  font-size: 10px; color: var(--accent-text); background: var(--glow);
+  border-radius: 4px; padding: 0 3px; margin-left: 4px;
+}
 .empty { text-align: center; color: var(--sub); padding: 24px 0; }
+
+/* ── 底部：琥珀金成本 + 蓝→青主按钮 ─────────────── */
+#foot-cost {
+  display: none; padding: 8px 16px 2px; color: var(--sub); font-size: 12px;
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+#total-cost {
+  font-family: var(--mono); font-weight: 800; font-size: 15px;
+  color: var(--amber); text-shadow: 0 0 12px var(--amber-glow);
+}
+footer {
+  display: flex; gap: 8px; padding: 10px 14px 14px;
+  background: var(--panel-glass);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+}
+button.primary {
+  flex: 1; background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+  color: #fff; border: 0; border-radius: 999px; padding: 8px 0;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.3px; cursor: pointer;
+  box-shadow: 0 2px 16px var(--btn-glow), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: filter 0.15s, box-shadow 0.2s, transform 0.15s;
+}
+button.primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 22px var(--btn-glow), 0 0 26px var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+button.primary:active { filter: brightness(0.92); transform: translateY(0); }
+button.ghost {
+  background: var(--panel-glass); border: 1px solid var(--border); color: var(--text);
+  border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+button.ghost:hover { border-color: var(--accent); color: var(--accent-text); box-shadow: 0 0 10px var(--glow); }
+button.ghost:active { filter: brightness(0.92); }

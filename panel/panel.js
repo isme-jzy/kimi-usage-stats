@@ -37,7 +37,10 @@ function cycleTheme() {
 }
 const themeMq = window.matchMedia('(prefers-color-scheme: dark)');
 themeMq.addEventListener('change', () => {
-  if (readThemePref() === 'system') document.documentElement.dataset.theme = 'system';
+  if (readThemePref() === 'system') {
+    delete document.documentElement.dataset.theme;
+    requestAnimationFrame(() => { document.documentElement.dataset.theme = 'system'; });
+  }
 });
 applyTheme(readThemePref());
 if ($('btn-theme')) $('btn-theme').addEventListener('click', cycleTheme);
@@ -46,13 +49,22 @@ function render() {
   // 概览如何折零用量：默认只显示有数据的模型（与 dashboard 默认口径一致）
   const rows = aggregateByModel(records, models, rangeBounds($('range').value), priceOverrides)
     .filter((r) => r.requests > 0);
+  // 霓虹 HUD 图形化：token 条按最大值归一；命中率画 SVG 圆环（r=7.5，周长≈47.12）
+  const maxTotal = Math.max(...rows.map((r) => r.total), 1);
+  const RING_C = 47.12;
   $('tbody').innerHTML = rows.length
-    ? rows.map((r) => `<tr>
+    ? rows.map((r) => {
+        const rate = r.cacheHitRate;
+        const lv = rate == null ? 'mid' : rate >= 0.9 ? 'hi' : rate >= 0.7 ? 'mid' : rate >= 0.5 ? 'low' : 'crit';
+        const off = rate == null ? RING_C : (RING_C * (1 - rate)).toFixed(2);
+        const barW = ((r.total / maxTotal) * 100).toFixed(1);
+        return `<tr>
         <td title="${esc(r.key)}">${esc(r.displayName)}${r.configured ? '' : '<span class="badge">未配置</span>'}</td>
-        <td>${fmtNum(r.total)}</td>
-        <td>${fmtPct(r.cacheHitRate)}</td>
-        <td>${r.tokensPerSec == null ? '—' : r.tokensPerSec.toFixed(1)}</td>
-      </tr>`).join('')
+        <td><div class="tok"><span class="tok-num">${fmtNum(r.total)}</span><span class="tok-bar"><i style="width:${barW}%"></i></span></div></td>
+        <td><span class="hit ${lv}"><b>${fmtPct(rate)}</b><svg class="ring" viewBox="0 0 20 20" aria-hidden="true"><circle class="rb" cx="10" cy="10" r="7.5"/><circle class="rf" cx="10" cy="10" r="7.5" style="stroke-dasharray:${RING_C};stroke-dashoffset:${off}"/></svg></span></td>
+        <td class="ts">${r.tokensPerSec == null ? '—' : r.tokensPerSec.toFixed(1)}</td>
+      </tr>`;
+      }).join('')
     : '<tr><td colspan="4" class="empty">暂无用量记录</td></tr>';
   // 概览底部：估算花费总计；无数据或全部未定价时显示 —（而非 ¥0.00）
   const footCost = $('foot-cost');

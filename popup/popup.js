@@ -28,7 +28,11 @@ function cycleTheme() {
 }
 const themeMq = window.matchMedia('(prefers-color-scheme: dark)');
 themeMq.addEventListener('change', () => {
-  if (readThemePref() === 'system') document.documentElement.dataset.theme = 'system';
+  if (readThemePref() === 'system') {
+    // data-theme 值不变时浏览器不会重算 CSS；先移除再恢复，强制媒体查询重匹配
+    delete document.documentElement.dataset.theme;
+    requestAnimationFrame(() => { document.documentElement.dataset.theme = 'system'; });
+  }
 });
 applyTheme(readThemePref());
 const btnTheme = document.getElementById('btn-theme');

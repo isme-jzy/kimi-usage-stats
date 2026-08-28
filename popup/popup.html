@@ -3,50 +3,116 @@
 <head>
   <meta charset="utf-8" />
   <style>
-    /* 三态主题 token（与 dashboard/panel 同套命名，共享 kus-theme 状态）：
-       :root = 亮（缺省），[data-theme=dark] = 暗，无属性/system = 跟随系统。 */
+    /* 三态主题 token（科技感 popup） */
     :root {
-      --bg:#F6F8FB; --card:#FFFFFF;
-      --text:#1F2937; --sub:#6B7280; --accent:#3B82F6;
-      --accent-strong:#1D4ED8; --accent-soft:rgba(59,130,246,0.10);
-      --btn-1:#2563EB; --btn-2:#1D4ED8; --btn-glow:rgba(29,78,216,0.35);
+      --bg: linear-gradient(165deg, #E8EEFB 0%, #F0F4FF 40%, #F6F8FB 100%);
+      --bg-solid: #F0F4FF;
+      --card: rgba(255,255,255,0.72);
+      --card-border: rgba(59,130,246,0.18);
+      --text: #1A2340; --sub: #6B7A99;
+      --accent: #3B82F6; --accent-strong: #1D4ED8;
+      --accent-soft: rgba(59,130,246,0.10);
+      --btn-1: #2563EB; --btn-2: #1D4ED8;
+      --btn-glow: rgba(29,78,216,0.30);
+      --glow: rgba(59,130,246,0.12);
+      --ring: rgba(59,130,246,0.25);
       --scheme: light;
     }
     :root[data-theme="dark"] {
-      --bg:#0F1119; --card:#151821;
-      --text:#E6E8EC; --sub:#9AA1AE; --accent:#3B82F6;
-      --accent-strong:#1D4ED8; --accent-soft:rgba(59,130,246,0.16);
-      --btn-1:#2563EB; --btn-2:#1D4ED8; --btn-glow:rgba(29,78,216,0.45);
+      --bg: linear-gradient(165deg, #080B16 0%, #0C1224 40%, #0F1119 100%);
+      --bg-solid: #0C1224;
+      --card: rgba(18,24,42,0.82);
+      --card-border: rgba(59,130,246,0.22);
+      --text: #E8ECF4; --sub: #8B99B5;
+      --accent: #3B82F6; --accent-strong: #1D4ED8;
+      --accent-soft: rgba(59,130,246,0.14);
+      --btn-1: #2563EB; --btn-2: #1D4ED8;
+      --btn-glow: rgba(37,99,235,0.40);
+      --glow: rgba(59,130,246,0.15);
+      --ring: rgba(59,130,246,0.30);
       --scheme: dark;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme]),
       :root[data-theme="system"] {
-        --bg:#0F1119; --card:#151821;
-        --text:#E6E8EC; --sub:#9AA1AE; --accent:#3B82F6;
-        --accent-strong:#1D4ED8; --accent-soft:rgba(59,130,246,0.16);
-        --btn-1:#2563EB; --btn-2:#1D4ED8; --btn-glow:rgba(29,78,216,0.45);
+        --bg: linear-gradient(165deg, #080B16 0%, #0C1224 40%, #0F1119 100%);
+        --bg-solid: #0C1224;
+        --card: rgba(18,24,42,0.82);
+        --card-border: rgba(59,130,246,0.22);
+        --text: #E8ECF4; --sub: #8B99B5;
+        --accent: #3B82F6; --accent-strong: #1D4ED8;
+        --accent-soft: rgba(59,130,246,0.14);
+        --btn-1: #2563EB; --btn-2: #1D4ED8;
+        --btn-glow: rgba(37,99,235,0.40);
+        --glow: rgba(59,130,246,0.15);
+        --ring: rgba(59,130,246,0.30);
         --scheme: dark;
       }
     }
     html { color-scheme: var(--scheme); }
-    body { width: 250px; margin: 0; padding: 14px; background: var(--bg); color: var(--text); font: 13px/1.6 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; -webkit-font-smoothing: antialiased; }
-    header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    #logo svg { width: 22px; height: 22px; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4)); }
-    h1 { font-size: 13px; margin: 0; flex: 1; }
-    #btn-theme { border: 1px solid var(--accent-soft); background: var(--accent-soft); color: var(--text); border-radius: 6px; padding: 2px 8px; font-size: 11px; cursor: pointer; transition: border-color 0.12s, filter 0.12s; }
-    #btn-theme:hover { border-color: var(--accent); }
-    p { color: var(--sub); margin: 4px 0 10px; font-size: 12px; }
-    button { width: 100%; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; border: 0; border-radius: 8px; padding: 7px 0; cursor: pointer; box-shadow: 0 2px 8px var(--btn-glow); transition: filter 0.12s, box-shadow 0.15s; }
-    button:hover { filter: brightness(1.1); box-shadow: 0 4px 12px var(--btn-glow); }
-    button:active { filter: brightness(0.9); }
+    body {
+      width: 260px; margin: 0; padding: 0;
+      background: var(--bg-solid);
+      color: var(--text);
+      font: 13px/1.6 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background: var(--bg);
+    }
+    header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 16px 12px;
+      background: var(--card);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      box-shadow: 0 1px 12px var(--glow);
+    }
+    #logo { min-width: 36px; display: flex; justify-content: center; }
+    #logo svg { width: 22px; height: 22px; filter: drop-shadow(0 0 6px var(--glow)); }
+    h1 { font-size: 13px; font-weight: 600; margin: 0; flex: 1; text-align: center; white-space: nowrap; letter-spacing: 0.3px; }
+    #btn-theme {
+      border: 1px solid var(--card-border);
+      background: var(--accent-soft);
+      color: var(--accent); border-radius: 6px;
+      padding: 2px 8px; font-size: 11px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    #btn-theme:hover { border-color: var(--accent); box-shadow: 0 0 8px var(--glow); }
+    .body-content { padding: 14px 16px 16px; }
+    p { color: var(--sub); margin: 0 0 14px; font-size: 12px; line-height: 1.5; }
+    #btn-open {
+      width: 100%; display: block;
+      background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+      color: #fff; border: 0; border-radius: 10px;
+      padding: 10px 0; font-size: 13px; font-weight: 600;
+      cursor: pointer; letter-spacing: 0.3px;
+      box-shadow: 0 2px 12px var(--btn-glow), inset 0 1px 0 rgba(255,255,255,0.12);
+      transition: all 0.2s ease;
+      position: relative; overflow: hidden;
+    }
+    #btn-open::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.10), transparent 60%);
+      pointer-events: none;
+    }
+    #btn-open:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 4px 20px var(--btn-glow), 0 0 24px var(--glow), inset 0 1px 0 rgba(255,255,255,0.15);
+      transform: translateY(-1px);
+    }
+    #btn-open:active { filter: brightness(0.92); transform: translateY(0); }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header><span id="logo"></span><h1>模型用量统计</h1><button id="btn-theme" title="主题：跟随系统（点击切换）">跟随</button></header>
-  <p id="status">读取状态中…</p>
-  <button id="btn-open">打开模型用量统计</button>
+  <div class="body-content">
+    <p id="status">读取状态中…</p>
+    <button id="btn-open">打开模型用量统计</button>
+  </div>
   <script type="module" src="./popup.js"></script>
 </body>
 </html>
