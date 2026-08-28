@@ -121,13 +121,14 @@ async function refresh() {
   }
 }
 
+// 命中率单元格：彩色数值 + 发光圆环（等级与 panel 同口径：≥90 hi / ≥70 mid / ≥50 low / 其余 crit）
 function hitCell(rate) {
   if (rate == null) return '<td class="num">—</td>';
-  const pct = rate * 100;
-  const cls = pct >= 80 ? 'good' : pct >= 50 ? 'mid' : 'low';
-  return `<td><span class="hit">
-    <span class="hitbar"><i class="${cls}" style="width:${pct.toFixed(1)}%"></i></span>
-    <span class="hitpct">${fmtPct(rate)}</span>
+  const lv = rate >= 0.9 ? 'hi' : rate >= 0.7 ? 'mid' : rate >= 0.5 ? 'low' : 'crit';
+  const rd = ringDash(rate);
+  return `<td><span class="hit ${lv}">
+    <b>${fmtPct(rate)}</b>
+    <svg class="ring" viewBox="0 0 20 20" aria-hidden="true"><circle class="rb" cx="10" cy="10" r="7.5"/><circle class="rf" cx="10" cy="10" r="7.5" style="stroke-dasharray:${rd.c};stroke-dashoffset:${rd.off}"/></svg>
   </span></td>`;
 }
 
@@ -189,6 +190,7 @@ function renderModelView(range) {
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="11" class="empty">该时间段暂无用量记录</td></tr>`;
   } else {
+    const maxTotal = Math.max(...rows.map((r) => r.total), 1);
     tbody.innerHTML = rows.map((r) => {
       const badge = r.configured ? '' : '<span class="badge">未在配置中</span>';
       return `<tr class="model-row" data-key="${esc(r.key)}">
@@ -197,7 +199,7 @@ function renderModelView(range) {
         <td class="num">${fmtNum(r.inputCacheRead)}</td>
         ${hitCell(r.cacheHitRate)}
         <td class="num">${fmtNum(r.output)}</td>
-        <td class="total">${fmtNum(r.total)}</td>
+        <td class="total"><div class="tok"><span class="tok-num">${fmtNum(r.total)}</span><span class="tok-bar"><i style="width:${((r.total / maxTotal) * 100).toFixed(1)}%"></i></span></div></td>
         <td class="num">${fmtCost(r.cost)}</td>
         <td class="num">${r.requests}</td>
         <td class="num">${fmtTps(r.tokensPerSec)}</td>

@@ -446,14 +446,25 @@ td.model-name { font-weight: 600; }
   vertical-align: 1px;
 }
 
-/* 命中率小条 */
-.hit { display: inline-flex; align-items: center; gap: 8px; }
-.hitbar { width: 58px; height: 6px; border-radius: 99px; background: var(--bar-track); overflow: hidden; }
-.hitbar i { display: block; height: 100%; border-radius: 99px; }
-.hitbar i.good { background: var(--good); }
-.hitbar i.mid { background: var(--accent); }
-.hitbar i.low { background: var(--warn); }
-.hitpct { font-family: var(--mono); font-size: 12.5px; min-width: 44px; text-align: right; }
+/* 命中率：彩色数值 + 发光圆环（与 panel 同构） */
+.hit { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.hit b { font-family: var(--mono); font-weight: 700; font-size: 12.5px; }
+.hit .ring { width: 16px; height: 16px; transform: rotate(-90deg); flex: none; }
+.hit .rb { fill: none; stroke: var(--bar-track); stroke-width: 3.5; }
+.hit .rf {
+  fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+.hit.hi b, .hit.hi .ring { color: var(--hi); }
+.hit.mid b, .hit.mid .ring { color: var(--accent); }
+.hit.low b, .hit.low .ring { color: var(--low); }
+.hit.crit b, .hit.crit .ring { color: var(--crit); }
+
+/* 合计 tokens：发光数码 + 霓虹渐变条 */
+.tok { display: flex; flex-direction: column; align-items: stretch; gap: 3px; min-width: 90px; }
+.tok-num { text-align: right; text-shadow: 0 0 10px var(--glow); }
+.tok-bar { height: 4px; border-radius: 99px; background: var(--bar-track); overflow: hidden; }
+.tok-bar i { display: block; height: 100%; border-radius: 99px; background: var(--tok-grad); box-shadow: 0 0 8px var(--glow); }
 
 /* ── 会话视图（复用现有变量，最小侵入） ─────────── */
 #c-interrupt { font-size: 15px; letter-spacing: 0; } /* 中断卡数值较长，缩小字号防溢出 */
