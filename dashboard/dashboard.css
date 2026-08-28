@@ -278,6 +278,19 @@ body::after {
 /* 估算花费：琥珀金高亮 */
 .stat-cost { color: var(--amber); text-shadow: 0 0 12px var(--amber-glow); }
 
+/* ── 用量趋势面积图（霓虹渐变 + 发光描边） ────────── */
+.trend-card { padding: 16px 18px 14px; margin-top: 16px; }
+.trend-body { display: flex; flex-direction: column; }
+.trend-body svg { width: 100%; height: 140px; display: block; }
+.trend-line {
+  fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
+  filter: drop-shadow(0 0 5px var(--glow));
+}
+.trend-dot { fill: var(--accent); filter: drop-shadow(0 0 6px var(--glow)); }
+.trend-base { stroke: var(--bar-track); stroke-width: 1; }
+/* 轴标签：外层 div 两 span（首/末日期），避开 preserveAspectRatio 拉伸 SVG 内文字 */
+.trend-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--sub); }
+
 /* ── 每日消耗热力图卡（365 天日历） ────────────── */
 .heatmap-card { padding: 16px 18px 14px; margin-top: 16px; }
 .heatmap-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
