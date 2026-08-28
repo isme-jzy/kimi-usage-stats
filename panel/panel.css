@@ -256,3 +256,13 @@ button.ghost {
 }
 button.ghost:hover { border-color: var(--accent); color: var(--accent-text); box-shadow: 0 0 10px var(--glow); }
 button.ghost:active { filter: brightness(0.92); }
+
+/* 动效守卫：减少动态时关闭过渡 */
+.hit .rf { transition: stroke-dashoffset 0.4s ease-out; }
+.tok-bar i { transition: width 0.4s ease-out; }
+.spark i { transform-origin: bottom; animation: hud-grow 0.4s ease-out; }
+@keyframes hud-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .hit .rf, .tok-bar i { transition: none; }
+  .spark i { animation: none; }
+}
