@@ -1,6 +1,6 @@
 import { LOGO_SVG } from '../lib/brand.js';
 import { rangeBounds, aggregateByModel, aggregateBySession, interruptStats, summarize, fmtNum, fmtPct, fmtCost } from '../lib/aggregate.js';
-import { ringDash, sparkHeights, dailyBuckets, areaPath } from '../lib/charts.js';
+import { ringDash, sparkHeights, dailyBuckets } from '../lib/charts.js';
 import { DEFAULT_PRICE_TABLE, priceKey, getPrice, calcCost } from '../lib/pricing.js';
 import * as store from '../lib/store.js';
 import { ensureReadPermission, scanKimiHome } from '../lib/scanner.js';
@@ -148,7 +148,6 @@ function render() {
   renderModelView(range);
   renderSessionView(range, interruptedTurnSet);
   renderInterruptCard(range, interruptedTurnSet);
-  renderTrend(range);
   renderHeatmap();
   renderDayDetail(range);
   renderDateChip();
@@ -258,37 +257,6 @@ function renderInterruptCard(range, interruptedTurnSet) {
     $('c-interrupt').textContent = '—';
     $('c-interrupt-note').textContent = '被打断轮次 token 估算';
   }
-}
-
-// 用量趋势面积图：复用每日聚合（与热力图同口径），随时间范围联动。
-// 数据 <2 点 → 单点光斑 + 基线；无数据 → 空态文案。
-// 轴标签放 SVG 外层 div（preserveAspectRatio="none" 会拉伸 SVG 内 <text>，故不用）。
-function renderTrend(range) {
-  const box = $('trend');
-  if (!box) return;
-  const buckets = dailyBuckets(records, range);
-  $('trend-sub').textContent = buckets.length ? `近 ${buckets.length} 天 · 每日合计 tokens` : '按本地日聚合';
-  if (!buckets.length || buckets.every((b) => b.total === 0)) {
-    box.innerHTML = '<div class="empty">该时间段暂无用量记录</div>';
-    return;
-  }
-  const values = buckets.map((b) => b.total);
-  const W = 600, H = 140, PAD = 8;
-  const { points, line, area } = areaPath(values, W, H, PAD);
-  const last = points[points.length - 1];
-  const ymd = (ts) => { const d = new Date(ts); return `${d.getMonth() + 1}/${d.getDate()}`; };
-  box.innerHTML =
-    `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="每日用量趋势">` +
-    `<defs><linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1">` +
-    `<stop offset="0" style="stop-color:var(--accent);stop-opacity:0.35"/>` +
-    `<stop offset="1" style="stop-color:var(--accent);stop-opacity:0"/>` +
-    `</linearGradient></defs>` +
-    `<line class="trend-base" x1="${PAD}" y1="${H - PAD}" x2="${W - PAD}" y2="${H - PAD}"/>` +
-    (area ? `<path class="trend-area" d="${area}" fill="url(#trend-fill)"/>` : '') +
-    (line ? `<path class="trend-line" d="${line}"/>` : '') +
-    (last ? `<circle class="trend-dot" cx="${last.x}" cy="${last.y}" r="3.5"/>` : '') +
-    `</svg>` +
-    `<div class="trend-axis"><span>${ymd(buckets[0].ts)}</span><span>${ymd(buckets[buckets.length - 1].ts)}</span></div>`;
 }
 
 // 每日消耗热力图（GitHub 风格 365 天日历）：数据从 records 按本地日现算。

@@ -278,19 +278,6 @@ body::after {
 /* 估算花费：琥珀金高亮 */
 .stat-cost { color: var(--amber); text-shadow: 0 0 12px var(--amber-glow); }
 
-/* ── 用量趋势面积图（霓虹渐变 + 发光描边） ────────── */
-.trend-card { padding: 16px 18px 14px; margin-top: 16px; }
-.trend-body { display: flex; flex-direction: column; }
-.trend-body svg { width: 100%; height: 140px; display: block; }
-.trend-line {
-  fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
-  filter: drop-shadow(0 0 5px var(--glow));
-}
-.trend-dot { fill: var(--accent); filter: drop-shadow(0 0 6px var(--glow)); }
-.trend-base { stroke: var(--bar-track); stroke-width: 1; }
-/* 轴标签：外层 div 两 span（首/末日期），避开 preserveAspectRatio 拉伸 SVG 内文字 */
-.trend-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--sub); }
-
 /* ── 每日消耗热力图卡（365 天日历） ────────────── */
 .heatmap-card { padding: 16px 18px 14px; margin-top: 16px; }
 .heatmap-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -522,17 +509,14 @@ code { background: var(--accent-soft); color: var(--accent-text); border-radius:
   .cards { grid-template-columns: 1fr; }
 }
 
-/* ── HUD 动效（适度）：数字淡入、圆环/渐变条/柱状图生长、面积图描边 ── */
+/* ── HUD 动效（适度）：数字淡入、圆环/渐变条/柱状图生长 ── */
 @keyframes hud-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes hud-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes hud-draw { to { stroke-dashoffset: 0; } }
 .stat-value { animation: hud-in 0.3s ease-out; }
 .hit .rf, .stat-ring .rf { transition: stroke-dashoffset 0.4s ease-out; }
 .tok-bar i { transition: width 0.4s ease-out; }
 .spark i { transform-origin: bottom; animation: hud-grow 0.4s ease-out; }
-.trend-line { stroke-dasharray: 2000; stroke-dashoffset: 2000; animation: hud-draw 0.6s ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
-  .stat-value, .spark i, .trend-line { animation: none; }
+  .stat-value, .spark i { animation: none; }
   .hit .rf, .stat-ring .rf, .tok-bar i { transition: none; }
-  .trend-line { stroke-dasharray: none; stroke-dashoffset: 0; }
 }

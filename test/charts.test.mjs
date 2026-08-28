@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ringDash, sparkHeights, dailyBuckets, areaPath } from '../lib/charts.js';
+import { ringDash, sparkHeights, dailyBuckets } from '../lib/charts.js';
 
 const DAY = 86400000;
 // 固定 now = 2026-08-13 15:00:00 本地时间
@@ -60,22 +60,4 @@ test('dailyBuckets：all 范围从最早记录起、窗口 cap、空记录', () 
   const b3 = dailyBuckets([old], { from: dayStart - DAY, to: null }, NOW, 90);
   assert.equal(b3.length, 2);
   assert.equal(b3[1].total, 0);
-});
-
-test('areaPath：空/单点/正常/全 0', () => {
-  assert.deepEqual(areaPath([], 100, 40), { points: [], line: '', area: '' });
-  const one = areaPath([5], 100, 40, 4);
-  assert.equal(one.points.length, 1);
-  assert.equal(one.line, '');
-  assert.equal(one.area, '');
-  const two = areaPath([0, 10], 100, 40, 4);
-  assert.equal(two.points.length, 2);
-  assert.match(two.line, /^M/);
-  assert.match(two.area, /Z$/);
-  // 两点：起点 (4, 36) 终点 (96, 4)
-  assert.deepEqual(two.points[0], { x: 4, y: 36 });
-  assert.deepEqual(two.points[1], { x: 96, y: 4 });
-  // 全 0 → 全落基线
-  const zero = areaPath([0, 0, 0], 100, 40, 4);
-  assert.ok(zero.points.every((p) => p.y === 36));
 });
