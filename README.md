@@ -35,8 +35,6 @@
 | --- | --- |
 | ![dashboard-dark](screenshots/dashboard-dark.png) | ![dashboard-light](screenshots/dashboard-light.png) |
 
-> 注：以上两张仪表盘截图摄于 HUD 改版前，暗色实际效果为深海军蓝玻璃 + 全息网格 + 青色光晕，待更新。
-
 ### 上下文指示器（kimi web 输入框上方）
 
 ![上下文指示器](screenshots/context-indicator.png)
