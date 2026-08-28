@@ -40,42 +40,64 @@
   --btn-2: #1D4ED8;                    /* 主按钮渐变止（白字对比 6:1） */
   --btn-glow: rgba(29, 78, 216, 0.35);
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  /* HUD 图形变量（亮面：仅图形组件取色，装饰层关闭） */
+  --grid-line: transparent;
+  --deco-opacity: 0;
+  --glow: rgba(37, 99, 235, 0.20);
+  --edge-glow: rgba(37, 99, 235, 0.40);
+  --tok-grad: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+  --hi: #0891B2;
+  --low: #B45309;
+  --crit: #DC2626;
+  --amber: #B45309;
+  --amber-glow: rgba(180, 83, 9, 0.25);
 }
 
-/* 月之暗面（Kimi Code 暗色）：平实、无玻璃/光斑/紫调 */
+/* 月之暗面 = 霓虹 HUD（深海军蓝玻璃 + 青色光晕） */
 :root[data-theme="dark"] {
-  --bg: #0F1119;
-  --bg-2: #0F1119;
-  --card: #151821;
-  --card-raise: #21262D;
-  --text: #E6E8EC;
-  --sub: #9AA1AE;                      /* 次文（对比 #0F1119 ≈ 7.6:1，>=4.5） */
-  --border: #262A38;
-  --border-soft: rgba(38, 42, 56, 0.7);
-  --accent: #3B82F6;
-  --accent-hover: #2F6FE0;
-  --accent-strong: #1D4ED8;
-  --accent-soft: rgba(59, 130, 246, 0.16);
-  --accent-text: #7FB4FF;              /* 暗底上可读的亮蓝 */
-  --good: #34D399;
-  --warn: #F59E0B;
-  --shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  --bg: #060B1C;
+  --bg-2: #060B1C;
+  --card: rgba(10, 20, 46, 0.78);
+  --card-raise: rgba(16, 30, 62, 0.85);
+  --text: #E6F1FF;
+  --sub: #7C93BE;                      /* 次文（对比 #060B1C ≈ 5.8:1，>=4.5） */
+  --border: rgba(56, 189, 248, 0.20);
+  --border-soft: rgba(56, 189, 248, 0.14);
+  --accent: #22D3EE;
+  --accent-hover: #67E8F9;
+  --accent-strong: #0891B2;
+  --accent-soft: rgba(34, 211, 238, 0.14);
+  --accent-text: #67E8F9;
+  --good: #22D3EE;
+  --warn: #FBBF24;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
   --scheme: dark;
-  --hero-grad: linear-gradient(120deg, #11131C 0%, #0F1119 55%, #101B2C 100%);
-  --moon-glow: radial-gradient(circle at 34% 34%, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02) 60%, transparent);
-  --moon-crescent: inset -11px -6px 0 rgba(47, 111, 224, 0.28);
-  --hover-bg: rgba(59, 130, 246, 0.12);
-  --detail-bg: rgba(59, 130, 246, 0.14);
-  --thead-bg: rgba(255, 255, 255, 0.02);
-  --bar-track: rgba(230, 232, 236, 0.12);
-  --hm-empty: #1F2430;
-  --hm-1: #0B2A57;                     /* 热力图档位：暗蓝 → 亮蓝 */
-  --hm-2: #124C9E;
-  --hm-3: #1E63C8;
-  --hm-4: #3B82F6;
-  --btn-1: #2563EB;
-  --btn-2: #1D4ED8;
-  --btn-glow: rgba(29, 78, 216, 0.45);
+  --hero-grad: linear-gradient(120deg, #081026 0%, #060B1C 55%, #081427 100%);
+  --moon-glow: radial-gradient(circle at 34% 34%, rgba(34, 211, 238, 0.16), rgba(34, 211, 238, 0.03) 60%, transparent);
+  --moon-crescent: inset -11px -6px 0 rgba(34, 211, 238, 0.30);
+  --hover-bg: rgba(34, 211, 238, 0.10);
+  --detail-bg: rgba(34, 211, 238, 0.10);
+  --thead-bg: rgba(56, 189, 248, 0.05);
+  --bar-track: rgba(56, 189, 248, 0.14);
+  --hm-empty: rgba(56, 189, 248, 0.08);
+  --hm-1: #0E3A4F;                     /* 热力图档位：暗青 → 亮青 */
+  --hm-2: #155E75;
+  --hm-3: #0891B2;
+  --hm-4: #22D3EE;
+  --btn-1: #2563EB;                    /* 主按钮渐变：蓝 → 青 */
+  --btn-2: #06B6D4;
+  --btn-glow: rgba(34, 211, 238, 0.35);
+  /* HUD 图形变量 */
+  --grid-line: rgba(56, 189, 248, 0.07);
+  --deco-opacity: 1;
+  --glow: rgba(34, 211, 238, 0.30);
+  --edge-glow: rgba(34, 211, 238, 0.45);
+  --tok-grad: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+  --hi: #22D3EE;
+  --low: #FBBF24;
+  --crit: #F87171;
+  --amber: #FFC24B;
+  --amber-glow: rgba(255, 194, 75, 0.30);
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
 }
 
@@ -84,38 +106,49 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]),
   :root[data-theme="system"] {
-    --bg: #0F1119;
-    --bg-2: #0F1119;
-    --card: #151821;
-    --card-raise: #21262D;
-    --text: #E6E8EC;
-    --sub: #9AA1AE;
-    --border: #262A38;
-    --border-soft: rgba(38, 42, 56, 0.7);
-    --accent: #3B82F6;
-    --accent-hover: #2F6FE0;
-    --accent-strong: #1D4ED8;
-    --accent-soft: rgba(59, 130, 246, 0.16);
-    --accent-text: #7FB4FF;
-    --good: #34D399;
-    --warn: #F59E0B;
-    --shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    --bg: #060B1C;
+    --bg-2: #060B1C;
+    --card: rgba(10, 20, 46, 0.78);
+    --card-raise: rgba(16, 30, 62, 0.85);
+    --text: #E6F1FF;
+    --sub: #7C93BE;                      /* 次文（对比 #060B1C ≈ 5.8:1，>=4.5） */
+    --border: rgba(56, 189, 248, 0.20);
+    --border-soft: rgba(56, 189, 248, 0.14);
+    --accent: #22D3EE;
+    --accent-hover: #67E8F9;
+    --accent-strong: #0891B2;
+    --accent-soft: rgba(34, 211, 238, 0.14);
+    --accent-text: #67E8F9;
+    --good: #22D3EE;
+    --warn: #FBBF24;
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
     --scheme: dark;
-    --hero-grad: linear-gradient(120deg, #11131C 0%, #0F1119 55%, #101B2C 100%);
-    --moon-glow: radial-gradient(circle at 34% 34%, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02) 60%, transparent);
-    --moon-crescent: inset -11px -6px 0 rgba(47, 111, 224, 0.28);
-    --hover-bg: rgba(59, 130, 246, 0.12);
-    --detail-bg: rgba(59, 130, 246, 0.14);
-    --thead-bg: rgba(255, 255, 255, 0.02);
-    --bar-track: rgba(230, 232, 236, 0.12);
-    --hm-empty: #1F2430;
-    --hm-1: #0B2A57;
-    --hm-2: #124C9E;
-    --hm-3: #1E63C8;
-    --hm-4: #3B82F6;
-    --btn-1: #2563EB;
-    --btn-2: #1D4ED8;
-    --btn-glow: rgba(29, 78, 216, 0.45);
+    --hero-grad: linear-gradient(120deg, #081026 0%, #060B1C 55%, #081427 100%);
+    --moon-glow: radial-gradient(circle at 34% 34%, rgba(34, 211, 238, 0.16), rgba(34, 211, 238, 0.03) 60%, transparent);
+    --moon-crescent: inset -11px -6px 0 rgba(34, 211, 238, 0.30);
+    --hover-bg: rgba(34, 211, 238, 0.10);
+    --detail-bg: rgba(34, 211, 238, 0.10);
+    --thead-bg: rgba(56, 189, 248, 0.05);
+    --bar-track: rgba(56, 189, 248, 0.14);
+    --hm-empty: rgba(56, 189, 248, 0.08);
+    --hm-1: #0E3A4F;                     /* 热力图档位：暗青 → 亮青 */
+    --hm-2: #155E75;
+    --hm-3: #0891B2;
+    --hm-4: #22D3EE;
+    --btn-1: #2563EB;                    /* 主按钮渐变：蓝 → 青 */
+    --btn-2: #06B6D4;
+    --btn-glow: rgba(34, 211, 238, 0.35);
+    /* HUD 图形变量 */
+    --grid-line: rgba(56, 189, 248, 0.07);
+    --deco-opacity: 1;
+    --glow: rgba(34, 211, 238, 0.30);
+    --edge-glow: rgba(34, 211, 238, 0.45);
+    --tok-grad: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+    --hi: #22D3EE;
+    --low: #FBBF24;
+    --crit: #F87171;
+    --amber: #FFC24B;
+    --amber-glow: rgba(255, 194, 75, 0.30);
     --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
   }
 }
@@ -130,6 +163,39 @@ body {
   background-attachment: fixed;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+}
+/* 全息网格：青色细网格，顶部向远处淡出；亮面 --deco-opacity=0 不显示 */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: var(--deco-opacity);
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 100%);
+}
+/* 页面氛围光（顶部右 + 底部左） */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: var(--deco-opacity);
+  background:
+    radial-gradient(50% 26% at 85% -5%, var(--glow), transparent 70%),
+    radial-gradient(45% 22% at 8% 105%, var(--glow), transparent 70%);
+}
+.hero, .container { position: relative; z-index: 1; }
+/* HUD 卡片：玻璃拟态 + hover 边缘光晕（亮面 --card 不透明、--deco 关闭，视觉不变） */
+.card, .stat, .filters {
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+:root[data-theme="dark"] .stat { transition: border-color 0.2s, box-shadow 0.2s; }
+:root[data-theme="dark"] .stat:hover { border-color: var(--edge-glow); box-shadow: 0 0 18px var(--glow); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .stat, :root[data-theme="system"] .stat { transition: border-color 0.2s, box-shadow 0.2s; }
+  :root:not([data-theme]) .stat:hover, :root[data-theme="system"] .stat:hover { border-color: var(--edge-glow); box-shadow: 0 0 18px var(--glow); }
 }
 :focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; }
 
