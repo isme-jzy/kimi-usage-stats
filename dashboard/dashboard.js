@@ -1,7 +1,8 @@
 import { LOGO_SVG } from '../lib/brand.js';
-import { rangeBounds, aggregateByModel, aggregateBySession, interruptStats, summarize, fmtNum, fmtPct, fmtCost } from '../lib/aggregate.js';
+import { rangeBounds, aggregateByModel, aggregateBySession, interruptStats, summarize, recordUsage, fmtNum, fmtPct, fmtCost } from '../lib/aggregate.js';
 import { ringDash, sparkHeights, dailyBuckets } from '../lib/charts.js';
-import { DEFAULT_PRICE_TABLE, priceKey, getPrice, calcCost } from '../lib/pricing.js';
+import { DEFAULT_PRICE_TABLE, priceKey, getPriceEntry, calcCostAt, costWithPrice, resolvePrice } from '../lib/pricing.js';
+import { PRICE_HEAD_HTML, priceItemEl, resetItemEl, readPriceTable } from '../lib/price-editor.js';
 import * as store from '../lib/store.js';
 import { ensureReadPermission, scanKimiHome } from '../lib/scanner.js';
 
@@ -180,6 +181,24 @@ function renderModelView(range) {
   arc.style.strokeDashoffset = String(rd.off);
   // 没有任何模型被定价时显示 —（与表格/panel 口径一致），而非 ¥0.00
   $('c-cost').textContent = rows.some((r) => r.cost != null) ? fmtCost(s.cost) : '—';
+  // 峰谷汇总：高峰 / 低谷各自的花费（单一计价模型的花费单列，便于区分口径）
+  const touEl = $('c-cost-tou');
+  if (touEl) {
+    if (s.tou) {
+      const parts = [`峰 ${fmtCost(s.tier.peak.cost)}`, `谷 ${fmtCost(s.tier.offpeak.cost)}`];
+      if (s.tier.flat.cost > 0) parts.push(`单一价 ${fmtCost(s.tier.flat.cost)}`);
+      touEl.textContent = parts.join(' · ');
+      touEl.title =
+        `高峰 ${fmtNum(s.tier.peak.token)} tokens → ${fmtCost(s.tier.peak.cost)}\n` +
+        `低谷 ${fmtNum(s.tier.offpeak.token)} tokens → ${fmtCost(s.tier.offpeak.cost)}` +
+        (s.tier.flat.cost > 0 ? `\n单一计价 ${fmtNum(s.tier.flat.token)} tokens → ${fmtCost(s.tier.flat.cost)}` : '');
+      touEl.hidden = false;
+    } else {
+      touEl.textContent = '当前无峰谷计价模型';
+      touEl.title = '在「价目表」里为模型添加高峰/低谷时段即可启用峰谷计价';
+      touEl.hidden = false;
+    }
+  }
   // 平均 t/s 迷你柱状图：近 14 天每日加权 tps（与范围联动，无数据不渲染）
   const buckets = dailyBuckets(records, range, Date.now(), 14);
   const tpsVals = buckets.map((b) => (b.streamMs > 0 ? (b.output / b.streamMs) * 1000 : 0));
@@ -191,7 +210,15 @@ function renderModelView(range) {
   } else {
     const maxTotal = Math.max(...rows.map((r) => r.total), 1);
     tbody.innerHTML = rows.map((r) => {
-      const badge = r.configured ? '' : '<span class="badge">未在配置中</span>';
+      const badge = (r.configured ? '' : '<span class="badge">未在配置中</span>')
+        + (r.tou ? '<span class="badge tou" title="该模型启用了峰谷计价，花费按记录发生时间分时段计算">峰谷</span>' : '');
+      // 花费单元格：仅「启用峰谷」的模型在金额下方补一行「峰 / 谷」拆分。
+      // 单一价模型的 tiers 恒为 0（它全在 flat 桶里），显示「峰 ¥0.00 · 谷 ¥0.00」会误导。
+      const costCell = r.cost == null
+        ? '—'
+        : `${fmtCost(r.cost)}${r.tou
+          ? `<span class="cost-tou" title="高峰 ${fmtCost(r.tiers.peak.cost)} · 低谷 ${fmtCost(r.tiers.offpeak.cost)}">峰 ${fmtCost(r.tiers.peak.cost)} · 谷 ${fmtCost(r.tiers.offpeak.cost)}</span>`
+          : ''}`;
       return `<tr class="model-row" data-key="${esc(r.key)}">
         <td class="model-name">${esc(r.displayName)}${badge}</td>
         <td class="num">${fmtNum(r.inputOther)}</td>
@@ -199,7 +226,7 @@ function renderModelView(range) {
         ${hitCell(r.cacheHitRate)}
         <td class="num">${fmtNum(r.output)}</td>
         <td class="total"><div class="tok"><span class="tok-num">${fmtNum(r.total)}</span><span class="tok-bar"><i style="width:${((r.total / maxTotal) * 100).toFixed(1)}%"></i></span></div></td>
-        <td class="num">${fmtCost(r.cost)}</td>
+        <td class="num cost-cell">${costCell}</td>
         <td class="num">${r.requests}</td>
         <td class="num">${fmtTps(r.tokensPerSec)}</td>
         <td class="num">${fmtTps(r.lastTokensPerSec)}</td>
@@ -260,7 +287,8 @@ function renderInterruptCard(range, interruptedTurnSet) {
 }
 
 // 每日消耗热力图（GitHub 风格 365 天日历）：数据从 records 按本地日现算。
-// 口径与 aggregateByModel 一致：dayTotal = 未命中+缓存读+缓存写+输出；花费 = calcCost（缓存写归入 input，未定价不计 → '—'）。
+// 口径与 aggregateByModel 一致：dayTotal = 未命中+缓存读+缓存写+输出；
+// 花费 = 逐条按记录发生时间取价（支持峰谷；缓存写归入 input，未定价不计 → '—'）。
 // 窗口 = max(最早记录本地日, today-364 天 0 点) 至今，最多 365 天。
 // 布局：列 = 周（周一为每周起点，首列顶部补空），行 = 周一..周日；每格 13px；
 // 颜色按当日 total 分 5 档（0=空档，1-4 依 max 的 25/50/75% 分档）；今日格描边高亮。
@@ -294,11 +322,7 @@ function renderHeatmap() {
     for (const k of knownKeys) if (k.endsWith('/' + m)) return k;
     return m;
   };
-  const recCost = (r) => calcCost(resolveKey(r.model), {
-    input: (r.inputOther || 0) + (r.inputCacheCreation || 0),
-    cacheRead: r.inputCacheRead || 0,
-    output: r.output || 0,
-  }, priceOverrides);
+  const recCost = (r) => calcCostAt(resolveKey(r.model), recordUsage(r), priceOverrides, r.time);
 
   const bucketByDay = new Map(); // ds → { total, cost, hasCost }
   for (const r of records) {
@@ -427,20 +451,19 @@ function buildSessionDetail(range, interruptedTurnSet) {
     const sn = shortName(key);
     // 以完整 key 分组（同短名不同 provider 的模型分开统计），展示名为短名
     let mo = d.models.get(key);
-    if (!mo) { mo = { key, name: sn, totalToken: 0, _in: 0, _cr: 0, _cc: 0, _out: 0 }; d.models.set(key, mo); }
+    if (!mo) { mo = { key, name: sn, totalToken: 0, cost: 0, priced: false, tou: false }; d.models.set(key, mo); }
     const total = (r.inputOther || 0) + (r.inputCacheRead || 0) + (r.inputCacheCreation || 0) + (r.output || 0);
     mo.totalToken += total;
-    mo._in += r.inputOther || 0; mo._cr += r.inputCacheRead || 0; mo._cc += r.inputCacheCreation || 0; mo._out += r.output || 0;
-    if (r.turnId && interruptedTurnSet.has(r.turnId)) {
-      d.turns.add(r.turnId);
-      d.itoken += total;
-      // 断轮消耗逐条按模型报价累加，口径与 interruptStats 一致（未定价 cost=null → 不计）
-      const c = calcCost(key, {
-        input: (r.inputOther || 0) + (r.inputCacheCreation || 0),
-        cacheRead: r.inputCacheRead || 0,
-        output: r.output || 0,
-      }, priceOverrides);
-      if (c != null) d.icost += c;
+    const interrupted = !!(r.turnId && interruptedTurnSet.has(r.turnId));
+    if (interrupted) { d.turns.add(r.turnId); d.itoken += total; }
+    // 花费逐条按记录发生时间取价累计（支持峰谷），口径与 aggregateByModel 一致（未定价 cost=null → 不计）
+    const p = resolvePrice(key, priceOverrides, r.time);
+    const c = costWithPrice(p, recordUsage(r));
+    if (c != null) {
+      mo.cost += c;
+      mo.priced = true;
+      if (p.tou) mo.tou = true;
+      if (interrupted) d.icost += c;
     }
   }
   const out = new Map();
@@ -449,7 +472,8 @@ function buildSessionDetail(range, interruptedTurnSet) {
       models: [...d.models.values()].map((mo) => ({
         name: mo.name || shortName(mo.key),
         totalToken: mo.totalToken,
-        cost: calcCost(mo.key, { input: mo._in + mo._cc, cacheRead: mo._cr, output: mo._out }, priceOverrides),
+        tou: mo.tou,
+        cost: mo.priced ? mo.cost : null,
       })).sort((a, b) => b.totalToken - a.totalToken),
       turns: d.turns.size,
       itoken: d.itoken,
@@ -544,7 +568,7 @@ function toggleSessionDetail(row) {
       <div class="detail-title">模型分布</div>
       <table class="mini">
         <thead><tr><th>模型</th><th>总 token</th><th>花费</th></tr></thead>
-        <tbody>${d.models.map((m) => `<tr><td>${esc(m.name)}</td><td class="num">${fmtNum(m.totalToken)}</td><td class="num">${fmtCost(m.cost)}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">—</td></tr>'}</tbody>
+        <tbody>${d.models.map((m) => `<tr><td>${esc(m.name)}${m.tou ? '<span class="badge tou" title="该模型按峰谷计价">峰谷</span>' : ''}</td><td class="num">${fmtNum(m.totalToken)}</td><td class="num">${fmtCost(m.cost)}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">—</td></tr>'}</tbody>
       </table>
     </div>
     <div class="detail-col">
@@ -568,45 +592,51 @@ $('session-tbody').addEventListener('keydown', (e) => {
 
 $('btn-rescan').addEventListener('click', refresh);
 
-// ── 价目表设置 ─────────────────────────────────────────────
-// 每个编辑行：短名 → {inputEl, cacheEl, outputEl}
+// ── 价目表设置（单一价 / 峰谷）──────────────────────────
+// 视图逻辑（行/时段 DOM 的构建与读取）在 lib/price-editor.js；此处只管状态与持久化。
+// priceInputs：短名 → refs（见 price-editor.priceItemEl）
 const priceInputs = new Map();
 
 function openPriceEditor() {
   if (!priceOverrides) return;
-  const shown = new Map(); // 短名 → {displayName, eff}
-  const add = (key, displayName) => {
+  // 定价按短名（priceKey）走，所以同短名的多个 config key 共用一行价格。
+  // 这里把「主名 / 定价键 / 未配置 / 共用关系」一起备好，交给 lib/price-editor.js 渲染。
+  const shown = new Map(); // 短名 → { key, short, displayName, configured, used, keys }
+  const add = (key, displayName, configured, used) => {
     const short = priceKey(key);
-    if (!short || shown.has(short)) return;
-    const eff = getPrice(key, priceOverrides); // 覆盖优先，回退默认
-    shown.set(short, { key, short, displayName, eff });
+    if (!short) return;
+    let row = shown.get(short);
+    if (!row) {
+      row = { key, short, displayName: short, configured: false, used: false, keys: [] };
+      shown.set(short, row);
+    }
+    const firstConfigured = configured && !row.configured; // 同短名多个配置时，以先出现的那个为行主
+    row.configured = row.configured || configured;
+    row.used = row.used || used;
+    if (!row.keys.includes(key)) row.keys.push(key);
+    // 主名优先取 config.toml 的 display_name —— 与主表显示保持一致；没有配置名的退回短名
+    if (firstConfigured) { row.key = key; row.displayName = displayName || short; }
   };
-  // 已配置模型 + 记录中出现但未配置的模型
-  for (const m of models) add(m.key, priceKey(m.key));
-  for (const r of records) add(r.model, priceKey(r.model));
-  // 价目表内置或覆盖里已有的模型（即便当前未使用也列出，便于调整）
-  for (const short of Object.keys({ ...DEFAULT_PRICE_TABLE, ...(priceOverrides || {}) })) add(short, short);
+  // 已配置模型（有 display_name，与主表同款名字）
+  for (const m of models) add(m.key, m.displayName, true, false);
+  // 记录里出现但没配置的模型
+  for (const r of records) add(r.model, null, false, true);
+  // 内置价目表 / 用户覆盖里已有、但当前既未配置也未使用的模型（便于提前调价）
+  for (const short of Object.keys({ ...DEFAULT_PRICE_TABLE, ...(priceOverrides || {}) })) add(short, short, false, false);
 
-  const list = [...shown.values()].sort((a, b) => (a.displayName || a.short).localeCompare(b.displayName || b.short, 'zh'));
+  const list = [...shown.values()].map((row) => ({
+    ...row,
+    unconfigured: row.used && !row.configured,
+    sharedKeys: row.keys,
+  })).sort((a, b) => a.displayName.localeCompare(b.displayName, 'zh'));
+
   priceInputs.clear();
   const body = $('price-body');
-  body.innerHTML = '<div class="price-row"><span class="price-key">模型</span><span class="price-sub">输入</span><span class="price-sub">缓存命中</span><span class="price-sub">输出</span></div>';
+  body.innerHTML = PRICE_HEAD_HTML;
   for (const it of list) {
-    const idBase = 'price-' + it.short.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const pre = (n) => (it.eff ? String(n) : '');
-    const rowEl = document.createElement('div');
-    rowEl.className = 'price-row';
-    rowEl.innerHTML =
-      `<span class="price-key" title="${esc(it.key)}">${esc(it.displayName || it.short)}</span>` +
-      `<input id="${idBase}-in" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—" value="${pre(it.eff ? it.eff.input : '')}">` +
-      `<input id="${idBase}-ca" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—" value="${pre(it.eff ? it.eff.cacheRead : '')}">` +
-      `<input id="${idBase}-out" type="number" min="0" step="0.1" inputmode="decimal" placeholder="—" value="${pre(it.eff ? it.eff.output : '')}">`;
-    body.appendChild(rowEl);
-    priceInputs.set(it.short, {
-      inputEl: $(`${idBase}-in`),
-      cacheEl: $(`${idBase}-ca`),
-      outputEl: $(`${idBase}-out`),
-    });
+    const { wrap, refs } = priceItemEl({ ...it, entry: getPriceEntry(it.key, priceOverrides) });
+    body.appendChild(wrap);
+    priceInputs.set(it.short, refs);
   }
   $('price-modal').hidden = false;
 }
@@ -621,22 +651,27 @@ $('price-modal').addEventListener('click', (e) => {
   if (e.target.id === 'price-modal') closePriceEditor(); // 点遮罩关闭
 });
 
-$('btn-price-save').addEventListener('click', async () => {
-  const next = {};
-  for (const [short, refs] of priceInputs) {
-    const inp = refs.inputEl.value.trim();
-    const ca = refs.cacheEl.value.trim();
-    const out = refs.outputEl.value.trim();
-    if (inp === '' && ca === '' && out === '') continue; // 全部留空 → 视为未定价，不写入
-    next[short] = {
-      input: parseFloat(inp) || 0,
-      cacheRead: parseFloat(ca) || 0,
-      output: parseFloat(out) || 0,
-    };
+// 恢复内置默认价（含 DeepSeek 峰谷时段）：仅改当前弹层内容，仍需「保存」才写入。
+// 只处理内置价目表里存在的模型；自建 / 未收录的模型保持原样，避免一键清空用户自己填的价。
+$('btn-price-reset').addEventListener('click', () => {
+  const targets = [...priceInputs].filter(([, refs]) => getPriceEntry(refs.key, null));
+  const skipped = priceInputs.size - targets.length;
+  const msg = `把 ${targets.length} 行恢复为内置默认价（含 DeepSeek 峰谷时段）？`
+    + (skipped ? `\n另有 ${skipped} 行无内置参考价（自建 / 未收录模型），将保持不动。` : '')
+    + '\n点「保存」后才会写入。';
+  if (!targets.length || !confirm(msg)) return;
+  for (const [short, refs] of targets) {
+    const { wrap, refs: next } = resetItemEl(refs, short);
+    refs.wrap.replaceWith(wrap);
+    priceInputs.set(short, next);
   }
+});
+
+$('btn-price-save').addEventListener('click', async () => {
+  const next = readPriceTable(priceInputs);
   try {
     await store.setPriceOverrides(next);
-    priceOverrides = { ...DEFAULT_PRICE_TABLE, ...next }; // 合并默认，保证后续 getPrice 兜底
+    priceOverrides = { ...DEFAULT_PRICE_TABLE, ...next }; // 合并默认，保证后续取价兜底
     closePriceEditor();
     render();
   } catch (err) {

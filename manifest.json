@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Kimi 模型用量统计",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "kimi-usage-stats contributors",
-  "description": "统计 kimi code cli 每个模型的 token 消耗量与 tokens/s，数据全部本地读取。",
+  "description": "统计 kimi code cli 每个模型的 token 消耗量与 tokens/s，支持峰谷计价，数据全部本地读取。",
   "icons": { "16": "icons/icon-16.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
   "action": {
     "default_popup": "popup/popup.html",

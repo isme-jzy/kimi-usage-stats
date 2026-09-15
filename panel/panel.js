@@ -69,12 +69,25 @@ function render() {
       }).join('')
     : '<tr><td colspan="4" class="empty">暂无用量记录</td></tr>';
   // 概览底部：估算花费总计；无数据或全部未定价时显示 —（而非 ¥0.00）
+  // 有峰谷计价模型时补一行峰/谷拆分（含单一计价部分），与 dashboard 口径一致
   const footCost = $('foot-cost');
   const totalCost = $('total-cost');
   if (footCost && totalCost) {
     footCost.style.display = 'block';
     const priced = rows.some((r) => r.cost != null);
-    totalCost.textContent = rows.length && priced ? fmtCost(summarize(rows).cost) : '—';
+    const s = summarize(rows);
+    totalCost.textContent = rows.length && priced ? fmtCost(s.cost) : '—';
+    const touEl = $('foot-tou');
+    if (touEl) {
+      if (s.tou) {
+        const parts = [`峰 ${fmtCost(s.tier.peak.cost)}`, `谷 ${fmtCost(s.tier.offpeak.cost)}`];
+        if (s.tier.flat.cost > 0) parts.push(`单一价 ${fmtCost(s.tier.flat.cost)}`);
+        touEl.textContent = parts.join(' · ');
+        touEl.title = `高峰 ${fmtNum(s.tier.peak.token)} tokens · 低谷 ${fmtNum(s.tier.offpeak.token)} tokens`;
+      } else {
+        touEl.textContent = '';
+      }
+    }
   }
 }
 

@@ -184,8 +184,8 @@ test('aggregateBySession：cost 只累加已定价模型（未定价 cost 不计
   ];
   const rows = aggregateBySession(recs, CONFIG, rangeBounds('all', NOW));
   assert.equal(rows.length, 1);
-  // ds：inputOther10+cacheCreation5=15 → 15/1e6*1；cacheRead20→20/1e6*0.2；output100→100/1e6*2
-  const dsCost = 15 / 1e6 * 1 + 20 / 1e6 * 0.2 + 100 / 1e6 * 2;
+  // 记录时间 00:00:00.1 落在 DeepSeek 闲时窗口（00:00-09:00）→ 按闲时价 1.5/0.05/4.5 计
+  const dsCost = 15 / 1e6 * 1.5 + 20 / 1e6 * 0.05 + 100 / 1e6 * 4.5;
   assert.ok(Math.abs(rows[0].cost - dsCost) < 1e-9);
   assert.equal(rows[0].totalToken, 220); // ds(135) + unknown(85)，未定价也计入 token
 });
@@ -219,8 +219,8 @@ test('interruptStats：累计被中断 turn 的用量（含未定价模型 cost=
   assert.equal(unknown.totalToken, 45);
   assert.equal(unknown.count, 1);
   assert.equal(unknown.cost, null); // 未定价
-  // 总 cost 不含未定价模型
-  const dsCost = (15 + 15) / 1e6 * 1 + (20 + 20) / 1e6 * 0.2 + (100 + 50) / 1e6 * 2;
+  // 总 cost 不含未定价模型；记录时间 00:00:0x 落在 DeepSeek 闲时窗口 → 按闲时价 1.5/0.05/4.5 计
+  const dsCost = (15 + 15) / 1e6 * 1.5 + (20 + 20) / 1e6 * 0.05 + (100 + 50) / 1e6 * 4.5;
   assert.ok(Math.abs(s.cost - dsCost) < 1e-9);
 });
 

@@ -230,6 +230,8 @@ td.ts { white-space: nowrap; }
   font-family: var(--mono); font-weight: 800; font-size: 15px;
   color: var(--amber); text-shadow: 0 0 12px var(--amber-glow);
 }
+/* 峰谷拆分：紧跟在总额下方一行小字（无峰谷计价模型时为空） */
+.foot-tou { display: block; margin-top: 2px; font-size: 11px; }
 footer {
   display: flex; gap: 8px; padding: 10px 14px 14px;
   background: var(--panel-glass);

@@ -1,6 +1,6 @@
 {
   "name": "kimi-usage-stats",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Kimi 模型用量统计（MV3 扩展）：解析 wire.jsonl 与 config.toml，本地展示用量。",
   "type": "module",
   "license": "MIT",

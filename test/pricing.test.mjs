@@ -60,11 +60,12 @@ test('getPrice：Kimi Code 实际短名通过别名映射到官方价', () => {
   assert.deepEqual(getPrice('kimi-code/k3-256k'), { input: 20, cacheRead: 2, output: 100 });
 });
 
-test('getPrice：DeepSeek 内置参考价 + 带日期后缀模型前缀兜底', () => {
-  assert.deepEqual(getPrice('deepseek/deepseek-v4-flash'), { input: 1, cacheRead: 0.2, output: 2 });
-  assert.deepEqual(getPrice('ark/deepseek-v4-pro'), { input: 12, cacheRead: 1, output: 24 });
+test('getPrice：DeepSeek 内置参考价（峰谷制度下取高峰基础价）+ 带日期后缀模型前缀兜底', () => {
+  // DeepSeek 自 2026-08-17 起峰谷定价：此项返回「基础价 = 高峰价」，闲时价见 periods
+  assert.deepEqual(getPrice('deepseek/deepseek-v4-flash'), { input: 3, cacheRead: 0.1, output: 9 });
+  assert.deepEqual(getPrice('ark/deepseek-v4-pro'), { input: 9, cacheRead: 0.3, output: 27 });
   // 前缀兜底：0731 等日期后缀 → deepseek-v4-flash
-  assert.deepEqual(getPrice('alibaba-token-plan-cn/deepseek-v4-flash-0731'), { input: 1, cacheRead: 0.2, output: 2 });
+  assert.deepEqual(getPrice('alibaba-token-plan-cn/deepseek-v4-flash-0731'), { input: 3, cacheRead: 0.1, output: 9 });
   // 防误配：kimi-k30 不应命中 kimi-k3
   assert.equal(getPrice('kimi-k30'), null);
 });
@@ -72,8 +73,8 @@ test('getPrice：DeepSeek 内置参考价 + 带日期后缀模型前缀兜底', 
 test('calcCost：别名与 DeepSeek 模型按价计费', () => {
   // k3-256k（别名 kimi-k3）1M 输入 + 1M 缓存读 + 1M 输出 → 20+2+100
   assert.equal(calcCost('kimi-code/k3-256k', { input: 1e6, cacheRead: 1e6, output: 1e6 }), 122);
-  // deepseek-v4-flash 1M 输入 + 1M 缓存读 + 1M 输出 → 1+0.2+2
-  assert.equal(calcCost('ark/deepseek-v4-flash', { input: 1e6, cacheRead: 1e6, output: 1e6 }), 3.2);
+  // deepseek-v4-flash 未带时间（calcCost 走基础价=高峰价）1M 输入 + 1M 缓存读 + 1M 输出 → 3+0.1+9
+  assert.equal(calcCost('ark/deepseek-v4-flash', { input: 1e6, cacheRead: 1e6, output: 1e6 }), 12.1);
 });
 
 test('calcCost：三档计价正确（1M 输入 + 1M 缓存读 + 1M 输出 → 13+2.6+54=69.6）', () => {
