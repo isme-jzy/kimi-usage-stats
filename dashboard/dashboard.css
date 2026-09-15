@@ -11,6 +11,8 @@
   --bg-2: #F6F8FB;                     /* 背景渐变终点（平实，与起点同色） */
   --card: #FFFFFF;                     /* 卡片底 */
   --card-raise: #F3F4F6;               /* 卡片 hover/抬升 */
+  /* 布局：内容区与顶部横幅共用同一宽度，改这一处即可（见 .container / .hero-inner） */
+  --page-max: 1280px;                  /* 需容纳模型表 11 列（自然宽 ≈1121px）+ 卡片内边距与边框 */
   --text: #1F2937;
   --sub: #6B7280;                      /* 次文（对比 #F6F8FB ≈ 4.8:1，>=4.5） */
   --border: #E5E7EB;                   /* 边框 */
@@ -206,7 +208,7 @@ body::after {
   border-bottom: 1px solid var(--border-soft);
 }
 .hero-inner {
-  max-width: 1180px;
+  max-width: var(--page-max);
   margin: 0 auto;
   padding: 12px 28px 14px; /* 高度压缩：标题/副标题/logo 一行 */
   display: flex;
@@ -227,7 +229,7 @@ body::after {
 }
 @media (max-width: 720px) { .hero-moon { display: none; } }
 
-.container { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+.container { max-width: var(--page-max); margin: 0 auto; padding: 0 28px; }
 
 /* ── 汇总卡（3×2） ────────────────────────────── */
 .cards {
